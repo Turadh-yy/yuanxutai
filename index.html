@@ -1,0 +1,4669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>圆序台 · 个人工作台</title>
+<style>
+/* ===== 基础变量 ===== */
+:root {
+  --primary: #6B8AAD;
+  --primary-light: #E8F0F7;
+  --primary-dark: #4A6B85;
+  --bg: #F5F7FA;
+  --card-bg: #FFFFFF;
+  --text: #3D4E5C;
+  --text-secondary: #8A9BA8;
+  --text-light: #B0BEC5;
+  --border: #E8ECF0;
+  --warning: #E8746C;
+  --warning-bg: #FDF2F1;
+  --danger: #E0533F;
+  --success: #6BBB8A;
+  --success-bg: #F0F9F4;
+  --shadow: 0 2px 12px rgba(107,138,173,0.08);
+  --shadow-hover: 0 4px 16px rgba(107,138,173,0.14);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 15px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== 顶部导航 ===== */
+.header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  letter-spacing: 1px;
+}
+.header-title svg { flex-shrink: 0; }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.data-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  height: 40px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); box-shadow: var(--shadow); }
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+.btn-sm { padding: 6px 10px; font-size: 13px; min-height: 32px; }
+.btn-danger { color: var(--warning); border-color: var(--warning); }
+.btn-danger:hover { background: var(--warning-bg); }
+.btn-icon {
+  padding: 6px;
+  min-height: 32px;
+  min-width: 32px;
+  border-radius: var(--radius-xs);
+}
+.btn-icon svg { display: block; }
+
+/* ===== 主体布局 ===== */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.today-section {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 上方三栏布局 ===== */
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+.cal-col, .today-col, .chart-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 日历组件 ===== */
+.cal-widget {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  flex: 1;
+}
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--primary-light);
+}
+.cal-month {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.cal-nav {
+  width: 30px; height: 30px;
+  border: none; background: transparent;
+  cursor: pointer;
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.cal-nav:hover { background: rgba(107,138,173,.15); }
+.cal-weekday {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 8px 12px 2px;
+  font-weight: 600;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 4px 12px 12px;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+  color: var(--text);
+  min-width: 0;
+}
+.cal-day:hover { background: var(--primary-light); color: var(--primary-dark); }
+.cal-day.other-month { color: var(--text-light); cursor: default; }
+.cal-day.other-month:hover { background: transparent; color: var(--text-light); }
+.cal-day.today {
+  font-weight: 700;
+  color: var(--primary-dark);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+.cal-day.selected {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(107,138,173,.4);
+}
+.cal-day.has-todo::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 5px; height: 5px;
+  background: var(--warning);
+  border-radius: 50%;
+}
+.cal-day.selected.has-todo::after { background: #fff; }
+.cal-today-btn {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  font-size: 13px;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background .2s;
+}
+.cal-today-btn:hover { background: var(--primary-light); }
+.cal-footer-btns { display: flex; }
+.cal-footer-btns .cal-today-btn { flex: 1; border-right: 1px solid var(--border); }
+.cal-footer-btns .cal-today-btn:last-child { border-right: none; }
+
+/* ===== 一周日历（窄屏） ===== */
+.cal-week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 6px 12px 12px;
+}
+.cal-week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all .18s;
+  position: relative;
+}
+.cal-week-day:hover { background: var(--primary-light); }
+.cal-week-day .cwd-label { font-size: 11px; color: var(--text-secondary); }
+.cal-week-day .cwd-num { font-size: 16px; font-weight: 600; color: var(--text); }
+.cal-week-day.today .cwd-num { color: var(--primary); }
+.cal-week-day.selected { background: var(--primary); }
+.cal-week-day.selected .cwd-label { color: rgba(255,255,255,.7); }
+.cal-week-day.selected .cwd-num { color: #fff; }
+.cal-week-day.has-todo::after {
+  content: '';
+  width: 5px; height: 5px;
+  background: var(--warning);
+  border-radius: 50%;
+}
+.cal-week-day.selected.has-todo::after { background: #fff; }
+
+/* ===== 饼图 ===== */
+.pie-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pie-chart-wrap svg { display: block; }
+.pie-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 10px;
+  justify-content: center;
+}
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.pie-legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.pie-total {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+/* 窄屏下饼图和图例横向排列 */
+@media (max-width: 768px) {
+  .pie-chart-wrap {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .pie-chart-wrap svg {
+    flex-shrink: 0;
+  }
+  .pie-legend {
+    flex-direction: column;
+    margin-top: 0;
+    gap: 4px 10px;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+  .pie-legend-item {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* ===== 记账本双栏布局 ===== */
+.finance-two-col {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+/* 记账月份选择条 */
+.finance-month-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 16px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+.finance-month-label {
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 110px;
+  text-align: center;
+  color: var(--text-primary);
+}
+.hbar-chart-wrap {
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  padding: 14px;
+  overflow: hidden;
+}
+.hbar-chart-wrap svg { display: block; width: 100%; height: auto; }
+.hbar-row-label { font-size: 12px; fill: var(--text-secondary); }
+.hbar-amount { font-size: 11px; fill: var(--warning); font-weight: 600; }
+
+/* ===== 收支对比卡片 ===== */
+.income-expense-summary {
+  display: flex;
+  gap: 0;
+  margin-bottom: 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.ie-box {
+  flex: 1;
+  padding: 8px 6px;
+  text-align: center;
+}
+.ie-box + .ie-box {
+  border-left: 1px solid var(--border);
+}
+.ie-box .ie-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+.ie-box .ie-amount { font-size: 14px; font-weight: 700; word-break: break-all; }
+.ie-box .ie-amount.expense { color: var(--warning); }
+.ie-box .ie-amount.income { color: var(--success); }
+.ie-box .ie-amount.balance { color: var(--primary); }
+.ie-box .ie-amount.balance.negative { color: var(--warning); }
+/* ===== 记账本 ===== */
+.record-form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.record-form-row .form-group {
+  flex-direction: row;
+  gap: 0;
+  align-items: center;
+}
+.record-form-row .form-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.type-toggle {
+  display: flex;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.type-btn {
+  padding: 9px 16px;
+  border: none;
+  background: var(--card-bg);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .2s;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.type-btn.active-expense { background: var(--warning); color: #fff; border-color: var(--warning); }
+.type-btn.active-income { background: var(--success); color: #fff; border-color: var(--success); }
+
+.record-amount {
+  font-weight: 700;
+  font-size: 15px;
+}
+.record-amount.expense { color: var(--warning); }
+.record-amount.income { color: var(--success); }
+
+.bar-chart-wrap {
+  background: var(--bg);
+  border-radius: var(--radius-xs);
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+.bar-chart-wrap svg { display: block; width: 100%; }
+.chart-week-total {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.finance-record {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius-xs);
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  transition: box-shadow .2s;
+}
+.finance-record:hover { box-shadow: var(--shadow); }
+.finance-record .rec-date { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+.finance-record .rec-cat { font-size: 12px; padding: 3px 8px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+.finance-record .rec-cat.expense { background: #FDF2F1; color: var(--warning); }
+.finance-record .rec-cat.income { background: #F0F9F4; color: var(--success); }
+.finance-record .rec-note { flex: 1; font-size: 14px; word-break: break-all; }
+.finance-record .rec-actions { display: flex; gap: 4px; flex-shrink: 0; }
+/* ===== Tab 导航 ===== */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 69px;
+  z-index: 90;
+}
+.tab-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { background: var(--primary-light); color: var(--primary-dark); }
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(107,138,173,0.3);
+}
+
+/* ===== 页面容器 ===== */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* ===== 卡片/模块 ===== */
+.module {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.module:hover { box-shadow: var(--shadow-hover); }
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+.module-header svg { color: var(--primary); flex-shrink: 0; }
+.module-header .header-spacer { flex: 1; }
+.module-body { padding: 16px 20px 20px; }
+
+/* ===== 今天要处理 ===== */
+.today-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  height: 100%;
+  box-sizing: border-box;
+}
+.today-card .module-header { padding: 0 0 12px; border: none; }
+.today-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.today-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.today-item:hover { box-shadow: var(--shadow); }
+.today-item.overdue { border-color: var(--warning); background: var(--warning-bg); }
+.today-item .today-icon { flex-shrink: 0; }
+.today-item .today-icon svg { display: block; }
+.today-item.overdue .today-icon { color: var(--warning); }
+.today-item:not(.overdue) .today-icon { color: var(--text-secondary); }
+.today-item .today-text { flex: 1; }
+.today-item.overdue .today-text { color: var(--warning); font-weight: 500; }
+.today-item .today-action { flex-shrink: 0; }
+.today-empty {
+  text-align: center;
+  color: var(--text-light);
+  padding: 16px;
+  font-size: 14px;
+}
+
+/* ===== 表单 ===== */
+.add-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+.smart-hint {
+  font-size: 12px;
+  color: var(--primary-dark);
+  background: var(--primary-light);
+  padding: 5px 10px;
+  border-radius: var(--radius-xs);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  animation: fadeIn 0.2s ease;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.form-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.form-input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--card-bg);
+  transition: border-color 0.2s;
+  height: 40px;
+  box-sizing: border-box;
+}
+.form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-input[type="text"] { min-width: 140px; }
+.form-input[type="number"] { width: 80px; }
+.form-input[type="date"] { width: 150px; }
+
+/* ===== 开关 ===== */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #D5DCE3;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+.toggle-slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: var(--primary); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+}
+.toggle-label { font-size: 14px; color: var(--text-secondary); }
+
+/* ===== 卡片网格 ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: all 0.2s;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover { box-shadow: var(--shadow); border-color: var(--text-light); }
+.card.overdue { background: var(--warning-bg); }
+.card.expiring { background: #FFF8E6; }
+/* 冰箱物品卡片：外边框大小统一 */
+#page-fridge .card { height: 250px; }
+#page-fridge .card-actions { margin-top: auto; }
+.card-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  word-break: break-word;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.card-qty {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+.tag-warning { background: var(--warning-bg); color: var(--warning); }
+.tag-success { background: var(--success-bg); color: var(--success); }
+.tag-neutral { background: #F0F2F5; color: var(--text-secondary); }
+.tag-daily { background: #FFF3E0; color: #E65100; }
+.tag-periodic { background: #E8F0F7; color: #4A6B85; }
+.tag-durable { background: #E8F5E9; color: #2E7D32; }
+.tag-emergency { background: #FCE4EC; color: #C62828; }
+.countdown {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.countdown.overdue-text { color: var(--warning); font-weight: 600; }
+.countdown.expiring-text { color: #D4920A; font-weight: 600; }
+.storage-advice {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: #F7F9FB;
+  padding: 6px 10px;
+  border-radius: var(--radius-xs);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.storage-advice svg { flex-shrink: 0; color: var(--primary); }
+.storage-zone {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.zone-cool { background: #E3F2FD; color: #1565C0; }
+.zone-freeze { background: #E0F7FA; color: #00838F; }
+.zone-room { background: #EFEFEF; color: #616161; }
+.zone-shade { background: #F1F8E9; color: #558B2F; }
+.card-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* ===== 列表 ===== */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.list-item:hover { box-shadow: var(--shadow); }
+.list-item.completed .list-text {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+.list-text {
+  flex: 1;
+  cursor: pointer;
+  font-size: 15px;
+  word-break: break-all;
+}
+.shopping-from-recipe {
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  margin-right: 4px;
+}
+.list-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.qty-btn:hover { border-color: var(--primary); color: var(--primary); }
+.qty-num { font-size: 15px; font-weight: 600; min-width: 24px; text-align: center; }
+.list-delete {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.list-delete:hover { color: var(--warning); background: var(--warning-bg); }
+.check-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--card-bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: all 0.2s;
+}
+.check-btn:hover { border-color: var(--success); }
+.check-btn.checked {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+.list-section-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 4px 4px 2px;
+  margin-top: 8px;
+}
+.list-empty {
+  text-align: center;
+  color: var(--text-light);
+  padding: 24px 16px;
+  font-size: 14px;
+}
+
+/* ===== 食谱卡片 ===== */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.recipe-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: all 0.2s;
+}
+.recipe-card { cursor: pointer; position: relative; }
+.recipe-card:hover { box-shadow: var(--shadow); border-color: var(--primary); }
+.recipe-card.use-expiring { border-color: var(--warning); background: #FFFCF6; }
+.recipe-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+.recipe-view-link { color: var(--primary); font-weight: 600; white-space: nowrap; }
+
+/* ===== 子模块标题 ===== */
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 22px 0 12px;
+}
+.subsection-title:first-child { margin-top: 0; }
+.subsection-title svg { color: var(--primary); }
+
+/* ===== 本周食谱设置 ===== */
+.week-plan {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.wp-grid {
+  min-width: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.wp-row {
+  display: grid;
+  grid-template-columns: 54px 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.wp-row:last-child { border-bottom: none; }
+.wp-head { background: #F7F9FB; }
+.wp-corner { background: #F7F9FB; }
+.wp-meal-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 4px;
+}
+.wp-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  padding: 8px 2px;
+  background: #FBFCFD;
+  text-align: center;
+}
+.wp-today-row { background: var(--primary-light); }
+.wp-today { color: var(--primary-dark); font-weight: 700; }
+.wp-today-badge {
+  font-size: 10px;
+  line-height: 1.4;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0 5px;
+}
+.wp-cell {
+  padding: 6px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wp-recipe-meta { font-size: 11px; text-align: center; }
+.wp-ok { color: var(--success); }
+.wp-miss { color: var(--warning); }
+
+/* 单餐多菜谱 */
+.wp-dish {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--success);
+  background: var(--success-bg);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+.wp-dish.wp-dish-warn { border-color: var(--danger); background: #FDF1F0; }
+.wp-dish-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+  padding: 5px 4px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.wp-dish.wp-dish-warn .wp-dish-name { color: var(--danger); }
+.wp-dish-name:hover { background: rgba(0,0,0,0.05); }
+.wp-dish-x {
+  flex-shrink: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  border-left: 1px solid rgba(0,0,0,0.08);
+}
+.wp-dish-x:hover { background: var(--danger); color: #fff; }
+.wp-warn-dot {
+  display: inline-block;
+  width: 13px; height: 13px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  line-height: 13px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* 保质期冲突提醒 */
+.expiry-alert {
+  border: 1px solid #F0C0BB;
+  background: #FDF3F2;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.expiry-alert-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 8px;
+}
+.expiry-alert-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px dashed #F0C0BB;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.expiry-alert-item .ea-text { flex: 1; min-width: 160px; line-height: 1.5; }
+.expiry-alert-item .ea-strong { color: var(--danger); font-weight: 600; }
+.ea-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* 菜谱库 */
+.lib-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.lib-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.lib-chip {
+  padding: 5px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.lib-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.lib-count { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+
+/* 菜谱详情 */
+.rd-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.rd-name { font-size: 19px; font-weight: 700; }
+.rd-meta { font-size: 12px; color: var(--text-secondary); }
+.rd-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rd-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.rd-steps li {
+  position: relative;
+  padding: 0 0 10px 30px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  counter-increment: step;
+}
+.rd-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0; top: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+.rd-tips {
+  background: var(--primary-light);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.rd-body { overflow-y: auto; flex: 1; }
+.rd-addrow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #F7F9FB;
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+.rd-addrow select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text-primary);
+}
+.recipe-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recipe-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.recipe-badge.full { background: var(--success-bg); color: var(--success); }
+.recipe-badge.custom { background: var(--primary-light); color: var(--primary-dark); }
+.recipe-ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.ingredient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  background: #F0F2F5;
+  color: var(--text-secondary);
+}
+.ingredient-chip.have { background: var(--success-bg); color: var(--success); }
+.ingredient-chip.miss { background: var(--warning-bg); color: var(--warning); }
+.ingredient-chip svg { display: block; }
+.match-rate {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--text);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  max-width: 90%;
+  text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { background: var(--success); }
+.toast.warning { background: var(--warning); }
+
+/* ===== 备份提醒 ===== */
+.backup-reminder {
+  background: #FFF8E7;
+  border: 1px solid #F0D860;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #8A6D00;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===== 确认弹窗 ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.modal-msg { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-wide { max-width: 520px; max-height: 80vh; display: flex; flex-direction: column; }
+.modal-wide .modal-title { position: relative; }
+
+/* 食谱搜索框 */
+.recipe-search-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.recipe-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-light);
+  pointer-events: none;
+}
+.recipe-search-input {
+  width: 100%;
+  padding-left: 38px !important;
+}
+
+/* 周计划格子按钮 */
+.wp-recipe-btn {
+  width: 100%;
+  border: 1px solid var(--success);
+  background: var(--success-bg);
+  color: var(--success);
+  border-radius: var(--radius-xs);
+  padding: 6px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-all;
+  transition: all 0.15s;
+}
+.wp-recipe-btn:hover { background: var(--success); color: #fff; }
+.wp-add-btn {
+  width: 100%;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  padding: 6px 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wp-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+.wp-clear {
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+.wp-clear:hover { color: var(--danger); }
+
+/* 菜谱选择器列表 */
+.picker-list {
+  overflow-y: auto;
+  max-height: 50vh;
+  margin: 4px -4px;
+  padding: 0 4px;
+}
+.picker-item {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.picker-item:hover { border-color: var(--primary); background: var(--primary-light); }
+.picker-item-custom { border-left: 3px solid var(--warning); }
+.picker-item-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.picker-item-name { font-size: 15px; font-weight: 600; }
+.picker-item-cat { font-size: 12px; color: var(--text-secondary); }
+.picker-item-ing { font-size: 12px; color: var(--text-secondary); margin-top: 3px; word-break: break-all; }
+.picker-del {
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 12px;
+  color: var(--danger);
+  cursor: pointer;
+}
+.picker-del:hover { text-decoration: underline; }
+
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .top-row { grid-template-columns: 1fr; }
+  .cal-col, .today-col, .chart-col { grid-column: 1; }
+  /* 手机端：今日待办优先，饼图隐藏，日历其次 */
+  .top-row .chart-col { display: none; }
+  .top-row .cal-col { order: 2; }
+  .top-row .today-col { order: 1; }
+  .finance-two-col { grid-template-columns: 1fr; }
+  .record-form-row { gap: 6px; }
+  .record-form-row .form-label { display: none; }
+  .record-form-row .form-group { flex: 1; min-width: 0; }
+  .record-form-row .form-input { width: 100% !important; min-width: 0; }
+  .record-form-row .btn-primary { flex-shrink: 0; }
+  .tab-nav { top: 61px; padding: 4px; flex-wrap: wrap; }
+  .tab-btn { padding: 8px 10px; font-size: 13px; flex: 1 1 calc(33.33% - 4px); }
+  .tab-btn svg { width: 14px; height: 14px; }
+  .header-title { font-size: 19px; }
+  .header { padding: 12px 16px; }
+  .main { padding: 12px; }
+  .module-body { padding: 14px 16px 16px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .recipe-grid { grid-template-columns: 1fr; }
+  /* 冰箱：窄屏两列卡片 */
+  #page-fridge .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  /* 记账本：窄屏记录两列卡片 */
+  #finance-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .finance-record { flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 12px; margin-bottom: 0; }
+  .finance-record .rec-cat { align-self: flex-start; }
+  .finance-record .rec-note { font-size: 12px; }
+  .finance-record .record-amount { align-self: flex-end; font-size: 16px; }
+  .finance-record .rec-actions { justify-content: flex-end; margin-top: 2px; }
+  /* 冰箱 & 记账本：添加功能窄屏两行排版 */
+  #page-fridge .record-form-row,
+  #page-finance .record-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  #page-fridge .record-form-row .form-group,
+  #page-finance .record-form-row .form-group {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+  #page-fridge .record-form-row .form-input,
+  #page-finance .record-form-row .form-input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
+  #page-fridge .record-form-row .type-toggle,
+  #page-finance .record-form-row .type-toggle { width: 100%; }
+  #page-fridge .record-form-row .btn-primary,
+  #page-finance .record-form-row .btn-primary {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .tab-btn { flex: 1 1 calc(33.33% - 4px); }
+  .wp-row { grid-template-columns: 48px 1fr 1fr 1fr; }
+  .wp-cell { padding: 4px; gap: 3px; }
+  .wp-dish-name { font-size: 11px; padding: 5px 2px; }
+  .wp-dish-x { width: 18px; }
+  .wp-add-btn { padding: 5px 2px; font-size: 11px; }
+  .rd-addrow { flex-direction: column; align-items: stretch; }
+  .rd-addrow select, .rd-addrow .btn { width: 100%; }
+  .rd-addrow .form-group { width: 100%; }
+  .expiry-alert-item .ea-text { min-width: 100%; }
+  .ea-actions { width: 100%; }
+  .ea-actions .btn { flex: 1; }
+  .lib-chip { padding: 6px 12px; font-size: 13px; }
+  .form-input[type="text"] { min-width: 120px; flex: 1; }
+  .add-form { gap: 6px; }
+  .btn { font-size: 13px; padding: 7px 12px; }
+  .toast { bottom: 40px; }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .top-row { grid-template-columns: 1fr 1fr; }
+  .chart-col { grid-column: 1 / -1; }
+  .finance-two-col { grid-template-columns: 1fr; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .header-actions .data-count,
+  .header-actions .btn-text { display: none; }
+  .header-actions .btn { padding: 6px; min-width: 44px; min-height: 44px; justify-content: center; }
+  .main { padding: 8px; }
+  .module-body { padding: 12px; }
+  .module-header { padding: 12px 14px; font-size: 15px; }
+  .card-grid { gap: 10px; }
+  .recipe-grid { gap: 8px; }
+  .tab-nav { top: 53px; margin-bottom: 12px; }
+  .header { padding: 8px 12px; }
+  .header-title { font-size: 18px; gap: 6px; }
+  .header-title svg { width: 20px; height: 20px; }
+  /* 顶部三栏 → 优先展示今日待办 */
+  .top-row { grid-template-columns: 1fr; gap: 12px; }
+  .top-row .chart-col { display: none; }  /* 手机端隐藏饼图释放空间 */
+  .top-row .cal-col { order: 2; }
+  .top-row .cal-col .cal-widget { border-radius: var(--radius-sm); }
+  .top-row .cal-header { padding: 10px 14px; }
+  .top-row .cal-grid { padding: 2px 10px 10px; gap: 1px; }
+  .top-row .cal-day { font-size: 12px; }
+  .top-row .today-col { order: 1; }
+  .today-card { padding: 12px 14px; }
+  .today-item { padding: 8px 10px; font-size: 13px; gap: 8px; }
+  .today-item .today-action .btn { padding: 4px 8px; font-size: 12px; }
+  .add-form { flex-direction: column; align-items: stretch; }
+  .add-form .form-input { width: 100%; }
+  .add-form .btn { width: 100%; }
+  .form-input[type="number"] { width: 100%; }
+  .form-input[type="date"] { width: 100%; }
+  .list-item { padding: 8px 10px; gap: 8px; }
+  .finance-month-bar { padding: 6px 8px; gap: 6px; }
+  .finance-month-label { font-size: 14px; min-width: 90px; }
+  .income-expense-summary { margin-bottom: 10px; }
+  .ie-box { padding: 6px 4px; }
+  .ie-box .ie-amount { font-size: 13px; }
+  .toast { padding: 10px 16px; font-size: 13px; left: 12px; right: 12px; }
+}
+
+/* ===== 动画 ===== */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.card, .list-item, .recipe-card, .today-item { animation: fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span>圆序台</span>
+    </div>
+    <div class="header-actions">
+      <span class="data-count" id="data-count"></span>
+      <button class="btn btn-sm" onclick="exportData()" title="导出备份">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        <span class="btn-text">导出备份</span>
+      </button>
+      <button class="btn btn-sm" onclick="document.getElementById('import-file').click()" title="导入恢复">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <span class="btn-text">导入恢复</span>
+      </button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-sm btn-danger" onclick="confirmClearAll()" title="清空数据">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        <span class="btn-text">清空</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 主体 ===== -->
+<main class="main">
+
+  <!-- 备份提醒 -->
+  <div class="backup-reminder" id="backup-reminder" style="display:none">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    <span id="backup-reminder-text"></span>
+  </div>
+
+  <!-- 日历 + 今日待办 + 记账柱形图 三栏 -->
+  <div class="top-row">
+    <div class="cal-col">
+      <div class="cal-widget" id="cal-widget"></div>
+    </div>
+    <div class="today-col">
+      <section class="today-section" style="margin-bottom:0;height:100%">
+        <div class="today-card">
+          <div class="module-header" style="padding:0 0 12px;border:none;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span>今天要处理</span>
+          </div>
+          <div class="today-list" id="today-list"></div>
+        </div>
+      </section>
+    </div>
+    <div class="chart-col">
+      <div class="module" style="height:100%">
+        <div class="module-header">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+          <span>支出分类</span>
+        </div>
+        <div class="module-body">
+          <div class="pie-chart-wrap" id="pie-chart-top"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 导航 -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('items')" id="tab-items">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+      物品管理
+    </button>
+    <button class="tab-btn" onclick="switchTab('fridge')" id="tab-fridge">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14"/><path d="M9 6v2M9 14v2"/></svg>
+      冰箱管理
+    </button>
+    <button class="tab-btn" onclick="switchTab('recipe')" id="tab-recipe">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 017.41 6a5.11 5.11 0 011.05-1.54 5 5 0 017.08 0A5.11 5.11 0 0116.59 6 4 4 0 0118 13.87V21H6z"/><path d="M6 17h12"/></svg>
+      本周食谱
+    </button>
+    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-shopping">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      购买清单
+    </button>
+    <button class="tab-btn" onclick="switchTab('todo')" id="tab-todo">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      事件待办
+    </button>
+    <button class="tab-btn" onclick="switchTab('finance')" id="tab-finance">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      记账本
+    </button>
+  </div>
+
+  <!-- 物品管理 -->
+  <div class="page active" id="page-items">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+        <span>物品管理</span>
+      </div>
+      <div class="module-body">
+        <div class="add-form">
+          <div class="form-group">
+            <label class="form-label">物品名称</label>
+            <input type="text" class="form-input" id="item-name" placeholder="如：抽纸" oninput="autoFillItem()" onkeydown="if(event.key==='Enter')addItem()">
+            <div class="smart-hint" id="item-hint" style="display:none"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <select class="form-input" id="item-category" onchange="onCategoryChange()" style="padding:10px 8px">
+              <option value="daily">日耗品</option>
+              <option value="periodic">周期品</option>
+              <option value="durable">耐用品</option>
+              <option value="emergency">应急品</option>
+            </select>
+          </div>
+          <div class="form-group" id="item-cycle-wrap">
+            <label class="form-label">更换周期（天）</label>
+            <input type="number" class="form-input" id="item-cycle" placeholder="30" min="1" value="30" onkeydown="if(event.key==='Enter')addItem()">
+          </div>
+          <button class="btn btn-primary" onclick="addItem()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </button>
+        </div>
+        <div class="card-grid" id="items-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 冰箱管理 -->
+  <div class="page" id="page-fridge">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14"/><path d="M9 6v2M9 14v2"/></svg>
+        <span>冰箱管理</span>
+      </div>
+      <div class="module-body">
+        <div class="record-form-row">
+          <div class="form-group">
+            <label class="form-label">食材</label>
+            <input type="text" class="form-input" id="fridge-name" placeholder="如：鸡蛋" oninput="autoFillFridge()" onkeydown="if(event.key==='Enter')addFridgeItem()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" id="fridge-date" style="width:auto">
+          </div>
+          <div class="form-group">
+            <label class="form-label">保质期</label>
+            <input type="number" class="form-input" id="fridge-shelflife" placeholder="7" min="1" value="7" style="width:64px" onkeydown="if(event.key==='Enter')addFridgeItem()">
+            <span style="font-size:12px;color:var(--text-secondary);margin-left:2px">天</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">数量</label>
+            <input type="number" class="form-input" id="fridge-qty" placeholder="1" min="1" value="1" style="width:56px" onkeydown="if(event.key==='Enter')addFridgeItem()">
+            <select class="form-input" id="fridge-unit" style="width:auto;padding:9px 6px">
+              <option value="个">个</option>
+              <option value="包">包</option>
+              <option value="袋">袋</option>
+              <option value="盒">盒</option>
+              <option value="瓶">瓶</option>
+              <option value="罐">罐</option>
+              <option value="袋">袋</option>
+              <option value="根">根</option>
+              <option value="块">块</option>
+              <option value="片">片</option>
+              <option value="斤">斤</option>
+              <option value="两">两</option>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">ml</option>
+              <option value="L">L</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addFridgeItem()" style="flex-shrink:0">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </button>
+        </div>
+        <div class="smart-hint" id="fridge-hint" style="display:none;margin-bottom:8px"></div>
+        <div class="card-grid" id="fridge-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 本周食谱 -->
+  <div class="page" id="page-recipe">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 017.41 6a5.11 5.11 0 011.05-1.54 5 5 0 017.08 0A5.11 5.11 0 0116.59 6 4 4 0 0118 13.87V21H6z"/><path d="M6 17h12"/></svg>
+        <span>本周食谱</span>
+      </div>
+      <div class="module-body">
+        <div class="subsection-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="week-plan-title">本周食谱设置</span>
+        </div>
+        <div class="week-plan" id="week-plan"></div>
+        <div id="expiry-alert-wrap"></div>
+        <div class="subsection-title">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/><path d="M9 21h6"/></svg>
+          今日食谱推荐
+          <span style="font-weight:400;font-size:12px;color:var(--text-light)">（按临期食材与匹配度排序，最多 20 道）</span>
+        </div>
+        <div class="recipe-search-row">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="recipe-search-icon"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" class="form-input recipe-search-input" id="recipe-search" placeholder="搜索菜名、食材或分类，如：鸡蛋 / 汤羹" oninput="onRecipeSearch(this.value)">
+        </div>
+        <div class="recipe-grid" id="recipe-grid"></div>
+
+        <!-- 菜谱库（已合并进本周食谱） -->
+        <div class="subsection-title" style="margin-top:28px">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M9 7h7M9 11h5"/></svg>
+          菜谱库
+          <div class="header-spacer"></div>
+          <button class="btn btn-sm btn-primary" onclick="openCreateRecipe()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            新建菜谱
+          </button>
+        </div>
+        <div class="recipe-search-row">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="recipe-search-icon"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" class="form-input recipe-search-input" id="library-search" placeholder="搜索菜名、食材或分类" oninput="onLibrarySearch(this.value)">
+        </div>
+        <div class="lib-toolbar">
+          <div class="lib-filters" id="lib-filters"></div>
+        </div>
+        <div class="lib-count" id="lib-count"></div>
+        <div class="recipe-grid" id="library-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 购买清单 -->
+  <div class="page" id="page-shopping">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span>购买清单</span>
+        <div class="header-spacer"></div>
+        <button class="btn btn-sm" onclick="confirmClearShopping()" id="clear-shopping-btn" style="display:none">清空清单</button>
+      </div>
+      <div class="module-body">
+        <div class="add-form">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">添加购买项</label>
+            <input type="text" class="form-input" id="shopping-name" placeholder="如：酱油" onkeydown="if(event.key==='Enter')addShoppingManual()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">数量</label>
+            <input type="number" class="form-input" id="shopping-qty" value="1" min="1" style="width:70px" onkeydown="if(event.key==='Enter')addShoppingManual()">
+          </div>
+          <button class="btn btn-primary" onclick="addShoppingManual()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </button>
+        </div>
+        <div id="shopping-list"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 事件待办 -->
+  <div class="page" id="page-todo">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <span>事件待办</span>
+      </div>
+      <div class="module-body">
+        <div class="add-form">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">待办事项</label>
+            <input type="text" class="form-input" id="todo-text" placeholder="如：交水电费" onkeydown="if(event.key==='Enter')addTodo()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" id="todo-date" onkeydown="if(event.key==='Enter')addTodo()">
+          </div>
+          <button class="btn btn-primary" onclick="addTodo()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </button>
+        </div>
+        <div id="todo-list"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 记账本 -->
+  <div class="page" id="page-finance">
+    <section class="module">
+      <div class="module-header">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <span>记账本</span>
+        <div class="header-spacer"></div>
+        <span style="font-size:13px;color:var(--text-secondary);margin-right:8px" id="finance-edit-hint"></span>
+      </div>
+      <div class="module-body">
+        <!-- 添加表单 -->
+        <div class="record-form-row">
+          <div class="type-toggle">
+            <button class="type-btn active-expense" id="type-expense-btn" onclick="setFinanceType('expense')">支出</button>
+            <button class="type-btn" id="type-income-btn" onclick="setFinanceType('income')">收入</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" id="fin-date" style="width:auto">
+          </div>
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <select class="form-input" id="fin-cat" style="width:auto;padding:9px 8px">
+              <option value="餐饮">餐饮</option>
+              <option value="交通">交通</option>
+              <option value="购物">购物</option>
+              <option value="娱乐">娱乐</option>
+              <option value="住房">住房</option>
+              <option value="医疗">医疗</option>
+              <option value="教育">教育</option>
+              <option value="工资">工资</option>
+              <option value="红包">红包</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">金额</label>
+            <input type="number" class="form-input" id="fin-amount" placeholder="0" min="0.01" step="0.01" style="width:80px" onkeydown="if(event.key==='Enter')submitFinance()">
+          </div>
+          <div class="form-group" style="flex:1;min-width:100px">
+            <label class="form-label">备注</label>
+            <input type="text" class="form-input" id="fin-note" placeholder="选填" onkeydown="if(event.key==='Enter')submitFinance()">
+          </div>
+          <button class="btn btn-primary" onclick="submitFinance()" id="fin-submit-btn" style="flex-shrink:0">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            添加
+          </button>
+          <button class="btn btn-sm" onclick="cancelEditFinance()" id="fin-cancel-btn" style="display:none;flex-shrink:0">取消</button>
+        </div>
+        <!-- 月份选择：只显示当月，其他月可单独查看/统计 -->
+        <div class="finance-month-bar">
+          <button class="btn btn-sm btn-icon" onclick="changeFinanceMonth(-1)" title="上个月" aria-label="上个月">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="finance-month-label" id="finance-month-label">本月</span>
+          <button class="btn btn-sm btn-icon" onclick="changeFinanceMonth(1)" title="下个月" aria-label="下个月">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <button class="btn btn-sm" onclick="goFinanceThisMonth()">回到本月</button>
+        </div>
+        <!-- 双栏：横向柱状图 + 记录列表 -->
+        <div class="finance-two-col">
+          <div class="hbar-chart-wrap" id="hbar-chart"></div>
+          <div id="finance-list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 确认弹窗 -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">确认操作</div>
+    <div class="modal-msg" id="modal-msg">确定要执行此操作吗？</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 菜谱选择器弹窗 -->
+<div class="modal-overlay" id="recipe-picker-overlay">
+  <div class="modal-box modal-wide">
+    <div class="modal-title">
+      <span id="picker-title-text">选择菜谱</span>
+      <button class="btn btn-sm btn-primary" style="float:right" onclick="openCreateRecipe()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        新建
+      </button>
+    </div>
+    <div class="recipe-search-row" style="margin:12px 0">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="recipe-search-icon"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" class="form-input recipe-search-input" id="picker-search" placeholder="搜索菜名、食材或分类" oninput="onPickerSearch(this.value)">
+    </div>
+    <div class="picker-list" id="picker-list"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeRecipePicker()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新建菜谱弹窗 -->
+<div class="modal-overlay" id="recipe-create-overlay">
+  <div class="modal-box" style="max-height:88vh;overflow-y:auto;max-width:460px">
+    <div class="modal-title">新建菜谱</div>
+    <div class="modal-msg" id="recipe-create-err" style="color:var(--danger);display:none"></div>
+    <div class="add-form" style="flex-direction:column;align-items:stretch;gap:12px;margin-top:8px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">菜谱名称</label>
+        <input type="text" class="form-input" id="cr-name" placeholder="如：可乐鸡翅" onkeydown="if(event.key==='Enter')submitCreateRecipe()">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">食材（用逗号或空格分隔）</label>
+        <input type="text" class="form-input" id="cr-ingredients" placeholder="如：鸡翅, 可乐, 生姜" onkeydown="if(event.key==='Enter')submitCreateRecipe()">
+      </div>
+      <div class="record-form-row" style="flex-wrap:wrap">
+        <div class="form-group">
+          <label class="form-label">分类</label>
+          <select class="form-input" id="cr-cat" style="width:auto;padding:9px 8px">
+            <option value="家常">家常</option>
+            <option value="汤羹">汤羹</option>
+            <option value="清淡">清淡</option>
+            <option value="凉拌">凉拌</option>
+            <option value="主食">主食</option>
+            <option value="饮品">饮品</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">预计耗时</label>
+          <input type="text" class="form-input" id="cr-time" placeholder="如：15分钟">
+        </div>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">做法步骤（每行一步，或用分号分隔）</label>
+        <textarea class="form-input" id="cr-steps" rows="5" placeholder="鸡翅冷水下锅焯水去腥&#10;热锅少油把鸡翅两面煎至金黄&#10;倒入可乐没过鸡翅，加姜片和生抽&#10;大火烧开转中小火收汁即可" style="resize:vertical;line-height:1.6;font-family:inherit"></textarea>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">小贴士（选填）</label>
+        <input type="text" class="form-input" id="cr-tips" placeholder="如：收汁时别走开，容易糊锅">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeCreateRecipe()">取消</button>
+      <button class="btn btn-primary" onclick="submitCreateRecipe()">保存菜谱</button>
+    </div>
+  </div>
+</div>
+
+<!-- 菜谱详情弹窗 -->
+<div class="modal-overlay" id="recipe-detail-overlay">
+  <div class="modal-box modal-wide">
+    <div class="modal-title" id="rd-title">菜谱详情</div>
+    <div class="rd-body" id="rd-body"></div>
+    <div class="modal-actions" id="rd-actions"></div>
+  </div>
+</div>
+
+<script>
+// ===== 存储配置 =====
+const PREFIX = 'wb_yuanxutai_';
+const KEYS = {
+  items: PREFIX + 'items',
+  fridge: PREFIX + 'fridge',
+  todos: PREFIX + 'todos',
+  shopping: PREFIX + 'shopping',
+  initialized: PREFIX + 'initialized',
+  tab: PREFIX + 'tab',
+  finance: PREFIX + 'finance',
+  weekPlan: PREFIX + 'weekPlan',
+  customRecipes: PREFIX + 'customRecipes',
+  planMigrated: PREFIX + 'planMigratedV2'
+};
+
+// ===== 数据状态 =====
+let items = [];
+let fridge = [];
+let todos = [];
+let shopping = [];
+let finance = [];
+let weekPlan = {};
+let customRecipes = [];
+let modalConfirmCallback = null;
+let recipeSearch = '';
+let pickerSearch = '';
+let pickerSlot = null;
+let librarySearch = '';
+let libraryCat = '全部';
+let detailRecipe = null;
+
+// 日历状态
+let selectedDate = todayStr();
+let calendarMonth = new Date().getMonth();
+let calendarYear = new Date().getFullYear();
+let narrowShowMonth = false;
+let weekStart = (function() {
+  var now = new Date();
+  var dow = now.getDay() || 7;
+  var ws = new Date(now);
+  ws.setDate(now.getDate() - dow + 1);
+  return ws;
+})();
+
+// 记账编辑状态
+let financeType = 'expense';
+let editingFinanceId = null;
+let financeMonth = (function() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); })();
+
+// ===== 食谱数据 =====
+const RECIPES = [
+  { name: '番茄炒蛋', category: '家常', time: '10分钟', ingredients: ['西红柿', '鸡蛋'], steps: [
+    '西红柿去蒂切滚刀块，鸡蛋打散加一小撮盐搅匀。',
+    '热锅倒油，油热后倒入蛋液，稍凝固时用铲子推散，八分熟盛出。',
+    '锅内留底油下西红柿，中火炒到出汁变软，加半小勺糖提鲜。',
+    '倒回鸡蛋翻炒均匀，加盐调味，撒葱花出锅。'
+  ], tips: '打蛋时加一勺温水，炒出来更滑嫩；糖能中和西红柿的酸。' },
+
+  { name: '蔬菜沙拉', category: '清淡', time: '8分钟', ingredients: ['西红柿', '黄瓜', '生菜'], steps: [
+    '生菜掰成小片，用凉开水泡5分钟后彻底沥干。',
+    '西红柿切块，黄瓜拍裂后切段。',
+    '所有食材放入大碗，淋橄榄油、少许盐和黑胡椒。',
+    '轻轻拌匀，装盘即可。'
+  ], tips: '菜叶一定要沥干，带水会让酱汁挂不住、口感变涩。' },
+
+  { name: '牛奶燕麦', category: '清淡', time: '5分钟', ingredients: ['牛奶', '燕麦'], steps: [
+    '燕麦片放入碗中，倒入牛奶没过燕麦。',
+    '微波炉中火加热90秒，或小锅小火煮3分钟并不断搅拌。',
+    '取出搅匀，静置1分钟让燕麦吸饱奶。',
+    '按口味加蜂蜜、坚果或水果丁。'
+  ], tips: '想更浓稠就前一晚冷泡，隔夜燕麦口感更绵密。' },
+
+  { name: '蛋炒饭', category: '主食', time: '12分钟', ingredients: ['鸡蛋', '米饭'], steps: [
+    '隔夜冷饭用手抓散，避免结块。',
+    '鸡蛋打散，热锅热油炒成蛋碎盛出。',
+    '锅中补少许油，倒入米饭中大火翻炒至粒粒分明。',
+    '倒回蛋碎，加盐和生抽炒匀，最后撒葱花。'
+  ], tips: '必须用冷饭，热饭水分多会炒成一坨。' },
+
+  { name: '番茄蛋汤', category: '汤羹', time: '10分钟', ingredients: ['西红柿', '鸡蛋'], steps: [
+    '西红柿切小块，鸡蛋打散备用。',
+    '锅中少油炒西红柿，炒出红油后加两碗清水。',
+    '水开后转小火，一边缓慢淋入蛋液一边用筷子搅出蛋花。',
+    '加盐调味，淋几滴香油出锅。'
+  ], tips: '淋蛋液时火要小、手要慢，蛋花才细腻不老。' },
+
+  { name: '蒸蛋羹', category: '汤羹', time: '15分钟', ingredients: ['鸡蛋'], steps: [
+    '两个鸡蛋打散，加1.5倍温水（约35°C）和少许盐搅匀。',
+    '用筛网过滤掉浮沫，倒入碗中。',
+    '碗上盖保鲜膜或倒扣盘子，水开后中小火蒸10分钟。',
+    '出锅淋生抽和香油。'
+  ], tips: '蛋水比1:1.5、过筛、加盖，这三步是蛋羹光滑无蜂窝的关键。' },
+
+  { name: '凉拌黄瓜', category: '凉拌', time: '8分钟', ingredients: ['黄瓜', '大蒜'], steps: [
+    '黄瓜洗净用刀背拍裂，切成小段。',
+    '加一小勺盐抓匀，腌10分钟后倒掉渗出的水。',
+    '大蒜切末，加生抽、香醋、香油、少许糖调成料汁。',
+    '料汁倒入黄瓜拌匀，冰镇后更爽脆。'
+  ], tips: '拍比切好吃——断面粗糙更容易吸味。' },
+
+  { name: '燕麦粥', category: '汤羹', time: '10分钟', ingredients: ['燕麦', '牛奶'], steps: [
+    '小锅加水烧开，倒入燕麦片小火煮5分钟。',
+    '倒入牛奶继续煮2分钟，不停搅拌防糊底。',
+    '按口味加糖或蜂蜜。',
+    '盛出后可撒葡萄干或坚果碎。'
+  ], tips: '快煮燕麦3分钟就够，钢切燕麦需要煮20分钟以上。' },
+
+  { name: '宫保鸡丁', category: '家常', time: '20分钟', ingredients: ['鸡肉', '花生', '黄瓜', '大蒜'], steps: [
+    '鸡胸肉切1.5cm丁，加生抽、料酒、淀粉抓匀腌15分钟。',
+    '调碗汁：生抽2勺、香醋2勺、糖1勺、淀粉半勺、水3勺搅匀。',
+    '热锅热油下鸡丁大火滑炒至变白盛出。',
+    '锅中爆香蒜末和干辣椒，下黄瓜丁炒半分钟。',
+    '倒回鸡丁，淋入碗汁快速翻炒收汁，最后撒花生米。'
+  ], tips: '花生最后放才脆；碗汁提前调好，下锅动作要快。' },
+
+  { name: '红烧肉', category: '家常', time: '75分钟', ingredients: ['猪肉', '生姜', '大蒜'], steps: [
+    '五花肉切3cm见方，冷水下锅加姜片焯水3分钟，捞出洗净。',
+    '锅中少油下冰糖小火炒至枣红色，立刻倒入肉块翻炒上色。',
+    '加生抽、老抽、料酒和姜蒜，倒入没过肉的热水。',
+    '大火烧开转小火炖60分钟。',
+    '开大火收汁至浓稠挂勺即可。'
+  ], tips: '炒糖色时全程小火，糖变枣红就要立刻下肉，晚一秒就发苦。' },
+
+  { name: '鱼香肉丝', category: '家常', time: '20分钟', ingredients: ['猪肉', '胡萝卜', '青椒', '大蒜'], steps: [
+    '猪里脊切细丝，加料酒、淀粉抓匀腌10分钟。',
+    '胡萝卜、青椒切丝备用。',
+    '调鱼香汁：生抽1勺、香醋2勺、糖2勺、淀粉半勺、水4勺。',
+    '热油滑散肉丝盛出；锅中下豆瓣酱炒出红油，加蒜末爆香。',
+    '下胡萝卜青椒丝炒断生，倒回肉丝，淋鱼香汁翻炒收汁。'
+  ], tips: '鱼香味的灵魂是糖醋比例，糖要略多于醋。' },
+
+  { name: '麻婆豆腐', category: '家常', time: '18分钟', ingredients: ['豆腐', '猪肉', '大蒜'], steps: [
+    '嫩豆腐切2cm块，淡盐水浸泡5分钟后沥干。',
+    '猪肉剁成末，热锅煸炒至出油变干。',
+    '加豆瓣酱和蒜末炒出红油，倒入一碗水烧开。',
+    '轻轻推入豆腐块，中小火煮3分钟。',
+    '分两次淋水淀粉勾芡，出锅撒花椒粉和葱花。'
+  ], tips: '盐水泡过的豆腐不易碎；翻动时用推的不要用炒的。' },
+
+  { name: '清炒时蔬', category: '清淡', time: '6分钟', ingredients: ['生菜', '大蒜'], steps: [
+    '青菜洗净沥干，大蒜切片。',
+    '大火热锅，倒油后先下蒜片爆香。',
+    '倒入青菜全程大火快炒40秒。',
+    '加盐调味立即出锅。'
+  ], tips: '锅要够热、时间要短，青菜才翠绿不出水。' },
+
+  { name: '酸辣土豆丝', category: '家常', time: '12分钟', ingredients: ['土豆', '青椒', '大蒜'], steps: [
+    '土豆切细丝，用清水冲洗两遍去掉表面淀粉，泡水备用。',
+    '青椒切丝，大蒜切末，干辣椒剪段。',
+    '热锅热油爆香蒜末和干辣椒。',
+    '沥干土豆丝大火翻炒1分钟，加青椒丝继续炒30秒。',
+    '沿锅边淋香醋，加盐炒匀出锅。'
+  ], tips: '土豆丝一定要泡水去淀粉，炒出来才脆不粘。' },
+
+  { name: '糖醋排骨', category: '家常', time: '45分钟', ingredients: ['排骨', '生姜'], steps: [
+    '排骨冷水下锅加姜片料酒焯水，捞出冲洗干净。',
+    '记住黄金比例：料酒1、生抽2、糖3、香醋4、清水5（勺）。',
+    '锅中少油煎香排骨，倒入调好的料汁。',
+    '大火烧开转小火炖30分钟。',
+    '大火收汁至浓稠裹住排骨，撒白芝麻。'
+  ], tips: '出锅前再补半勺醋，酸香味更明显。' },
+
+  { name: '蒜蓉蒸虾', category: '家常', time: '15分钟', ingredients: ['虾', '大蒜'], steps: [
+    '虾开背去虾线，摆入盘中。',
+    '大蒜切末，一半用热油炸香，与另一半生蒜末混合。',
+    '蒜蓉加生抽、蚝油、少许糖拌匀，铺在虾上。',
+    '水开后大火蒸6分钟。',
+    '出锅撒葱花，淋一勺热油激香。'
+  ], tips: '生熟蒜末混用，香味层次最足；蒸太久虾肉会柴。' },
+
+  { name: '白菜炖豆腐', category: '汤羹', time: '20分钟', ingredients: ['白菜', '豆腐', '大蒜'], steps: [
+    '白菜切片，梗叶分开；豆腐切块。',
+    '热锅爆香蒜片，先下白菜梗炒软。',
+    '加水或高汤烧开，放入豆腐块。',
+    '中小火炖10分钟，最后放白菜叶。',
+    '加盐和白胡椒粉调味出锅。'
+  ], tips: '白菜梗先下、叶后下，熟度才一致。' },
+
+  { name: '番茄牛腩', category: '汤羹', time: '90分钟', ingredients: ['牛肉', '西红柿', '土豆', '生姜'], steps: [
+    '牛腩切块，冷水下锅焯水去血沫，捞出洗净。',
+    '西红柿去皮切块，炒出浓稠番茄酱汁。',
+    '倒入牛腩翻炒，加姜片、生抽、没过食材的热水。',
+    '大火烧开转小火炖60分钟。',
+    '加入土豆块再炖20分钟，加盐调味。'
+  ], tips: '西红柿分两次放，一半炖化出味、一半后放保留果肉。' },
+
+  { name: '葱油拌面', category: '主食', time: '15分钟', ingredients: ['面条', '酱油'], steps: [
+    '小葱切段，葱白葱绿分开。',
+    '冷油下葱白，最小火慢炸8分钟至金黄，再下葱绿炸2分钟。',
+    '捞出葱段，锅中葱油加生抽、老抽、糖小火煮开成酱汁。',
+    '面条煮熟过一遍凉水，沥干。',
+    '面条拌入葱油酱汁，铺上炸好的葱段。'
+  ], tips: '炸葱必须全程小火，火大就发苦。葱油可以一次多做冷藏保存。' },
+
+  { name: '皮蛋豆腐', category: '凉拌', time: '6分钟', ingredients: ['豆腐', '鸡蛋'], steps: [
+    '内酯豆腐倒扣在盘中，切成小块。',
+    '皮蛋去壳切瓣，摆在豆腐上。',
+    '调汁：生抽、香醋、香油、蒜末、少许糖。',
+    '淋上料汁，撒葱花和熟花生碎。'
+  ], tips: '豆腐提前冷藏，口感更清爽。' },
+
+  { name: '鸡蛋灌饼', category: '主食', time: '20分钟', ingredients: ['鸡蛋', '面粉', '生菜'], steps: [
+    '面粉加温水和成软面团，醒20分钟。',
+    '擀成薄饼，表面刷油对折再擀开，形成分层。',
+    '平底锅小火烙至鼓起，用筷子戳开一个口。',
+    '把打散的鸡蛋液灌进饼里，翻面烙熟。',
+    '刷酱、夹生菜卷起来吃。'
+  ], tips: '饼鼓起来的瞬间最好灌蛋，此时内部空腔最大。' },
+
+  { name: '牛肉面', category: '主食', time: '90分钟', ingredients: ['牛肉', '面条', '白菜', '生姜'], steps: [
+    '牛肉切大块焯水，洗净备用。',
+    '锅中爆香姜片和香料，下牛肉炒香。',
+    '加生抽、老抽、豆瓣酱，倒入足量热水。',
+    '小火炖70分钟至牛肉软烂。',
+    '另起锅煮面，捞入碗中，浇牛肉和汤，放烫熟的青菜。'
+  ], tips: '面和汤分开煮，面条才不会糊汤。' },
+
+  { name: '香蕉燕麦奶昔', category: '饮品', time: '5分钟', ingredients: ['香蕉', '牛奶', '燕麦'], steps: [
+    '香蕉剥皮掰成小段。',
+    '燕麦片用少量热牛奶泡软2分钟。',
+    '全部材料倒入破壁机，加剩余牛奶。',
+    '高速打30秒至顺滑，倒出即饮。'
+  ], tips: '用冷冻香蕉打出来像冰沙，夏天特别舒服。' },
+
+  { name: '草莓酸奶', category: '饮品', time: '3分钟', ingredients: ['草莓', '酸奶'], steps: [
+    '草莓洗净去蒂，切成小块。',
+    '一半草莓用叉子压成果泥。',
+    '碗中铺酸奶，拌入果泥。',
+    '表面摆上草莓块，可撒燕麦脆。'
+  ], tips: '草莓临期时做这个最合适，压成泥完全不浪费。' },
+
+  { name: '烤红薯', category: '清淡', time: '50分钟', ingredients: ['红薯'], steps: [
+    '红薯洗净擦干，用叉子在表面戳几个孔。',
+    '烤箱200°C预热10分钟。',
+    '红薯放中层烤40分钟，中途翻面一次。',
+    '筷子能轻松扎透即熟。'
+  ], tips: '选细长的红薯更容易烤透出蜜；烤盘垫锡纸方便清理。' },
+
+  { name: '蒜蓉茄子', category: '家常', time: '18分钟', ingredients: ['茄子', '大蒜', '酱油'], steps: [
+    '茄子切条，撒盐腌10分钟后挤干水分。',
+    '热锅多放油，下茄子中火煎至两面金黄。',
+    '推到一边，下蒜末爆香。',
+    '加生抽、蚝油、少许糖和小半碗水。',
+    '中火焖3分钟收汁，撒葱花出锅。'
+  ], tips: '腌过再炒能大幅减少茄子吸油量。' },
+
+  { name: '青椒肉丝', category: '家常', time: '15分钟', ingredients: ['青椒', '猪肉', '大蒜'], steps: [
+    '猪肉切丝，加生抽、料酒、淀粉抓匀腌10分钟。',
+    '青椒去籽切丝。',
+    '热油下肉丝大火滑炒至变色盛出。',
+    '锅中爆香蒜末，下青椒丝炒1分钟。',
+    '倒回肉丝，加盐和生抽炒匀出锅。'
+  ], tips: '肉丝腌完封一层油，下锅不会粘成团。' },
+
+  { name: '煎鸡排', category: '家常', time: '20分钟', ingredients: ['鸡肉', '鸡蛋'], steps: [
+    '鸡胸肉横刀片成两片，用刀背拍松。',
+    '加盐、黑胡椒、料酒腌20分钟。',
+    '依次裹面粉、蛋液、面包糠。',
+    '平底锅中小火煎，每面4分钟至金黄。',
+    '出锅切条，配番茄酱。'
+  ], tips: '拍松是嫩的关键；全程中小火，火大外焦里生。' },
+
+  { name: '水煮牛肉', category: '家常', time: '30分钟', ingredients: ['牛肉', '白菜', '大蒜'], steps: [
+    '牛肉逆纹切薄片，加料酒、生抽、淀粉、一勺水抓至上劲。',
+    '白菜炒断生垫在碗底。',
+    '锅中炒香豆瓣酱和蒜末，加水烧开成红汤。',
+    '牛肉片逐片下锅，煮到变色立刻关火倒入碗中。',
+    '表面撒蒜末辣椒面，淋一勺滚油激香。'
+  ], tips: '牛肉必须逆着纹理切，否则怎么腌都嚼不动。' },
+
+  { name: '黄瓜炒蛋', category: '家常', time: '10分钟', ingredients: ['黄瓜', '鸡蛋'], steps: [
+    '黄瓜切片，鸡蛋打散加少许盐。',
+    '热油炒蛋至凝固盛出。',
+    '锅中补油下黄瓜片大火炒40秒。',
+    '倒回鸡蛋，加盐炒匀出锅。'
+  ], tips: '黄瓜炒久了会出水变软，快炒即可。' },
+
+  { name: '南瓜粥', category: '汤羹', time: '30分钟', ingredients: ['南瓜', '大米'], steps: [
+    '大米淘洗后用清水泡30分钟。',
+    '南瓜去皮切块。',
+    '锅中加足量水，下大米大火烧开转小火煮20分钟。',
+    '加入南瓜块继续煮10分钟至软烂。',
+    '用勺子把南瓜压碎搅匀即可。'
+  ], tips: '泡过的米更容易开花，粥更黏稠。' },
+
+  { name: '苹果沙拉', category: '清淡', time: '6分钟', ingredients: ['苹果', '酸奶'], steps: [
+    '苹果去核切丁，泡淡盐水防氧化。',
+    '沥干后放入碗中。',
+    '淋上原味酸奶拌匀。',
+    '撒坚果碎和少许肉桂粉。'
+  ], tips: '盐水泡1分钟就够，久了会有咸味。' },
+
+  { name: '韭菜炒蛋', category: '家常', time: '8分钟', ingredients: ['韭菜', '鸡蛋'], steps: [
+    '韭菜洗净沥干切段，鸡蛋打散。',
+    '热油炒蛋至半凝固盛出。',
+    '锅中补油下韭菜大火炒30秒。',
+    '倒回鸡蛋，加盐快速炒匀立刻出锅。'
+  ], tips: '韭菜不耐炒，全程不超过1分钟才香。' },
+
+  { name: '蘑菇炖鸡', category: '汤羹', time: '45分钟', ingredients: ['蘑菇', '鸡肉', '生姜'], steps: [
+    '鸡肉切块焯水，洗净沥干。',
+    '蘑菇撕成条（不要切，撕的更入味）。',
+    '锅中爆香姜片，下鸡块煸炒至微黄。',
+    '加生抽料酒和热水，小火炖25分钟。',
+    '放入蘑菇再炖10分钟，加盐调味。'
+  ], tips: '蘑菇后放，避免炖太久失去弹性。' },
+
+  { name: '芹菜炒肉', category: '家常', time: '15分钟', ingredients: ['芹菜', '猪肉', '大蒜'], steps: [
+    '芹菜去筋切段，猪肉切片腌10分钟。',
+    '芹菜用开水焯20秒后过凉水，保持翠绿。',
+    '热油滑炒肉片至变色。',
+    '下蒜末爆香，倒入芹菜大火翻炒1分钟。',
+    '加盐和生抽炒匀出锅。'
+  ], tips: '焯水那20秒能去掉芹菜的生涩味。' },
+
+  { name: '玉米排骨汤', category: '汤羹', time: '70分钟', ingredients: ['玉米', '排骨', '胡萝卜', '生姜'], steps: [
+    '排骨冷水下锅焯水，撇净浮沫后捞出。',
+    '玉米切段，胡萝卜切滚刀块。',
+    '砂锅加足量热水，放排骨和姜片。',
+    '大火烧开转小火炖40分钟。',
+    '加玉米和胡萝卜再炖20分钟，出锅前加盐。'
+  ], tips: '盐一定最后放，早放肉会发紧不易炖烂。' },
+
+  { name: '西红柿鸡蛋面', category: '主食', time: '15分钟', ingredients: ['西红柿', '鸡蛋', '面条'], steps: [
+    '西红柿切块，鸡蛋打散炒成块盛出。',
+    '锅中炒西红柿至出汁，加两碗水烧开。',
+    '倒回鸡蛋，加盐和生抽调味。',
+    '下面条煮熟，连汤盛出。',
+    '撒葱花，淋香油。'
+  ], tips: '面直接在汤里煮，淀粉能让汤更浓。' },
+
+  { name: '芒果酸奶', category: '饮品', time: '5分钟', ingredients: ['芒果', '酸奶'], steps: [
+    '芒果去皮切丁，留几块装饰用。',
+    '大部分芒果丁放入杯底。',
+    '倒入酸奶。',
+    '表面摆芒果丁，可加少许蜂蜜。'
+  ], tips: '芒果熟透后香味最浓，临期芒果拿来做这个正好。' },
+
+  { name: '菠菜蛋花汤', category: '汤羹', time: '10分钟', ingredients: ['菠菜', '鸡蛋'], steps: [
+    '菠菜洗净，开水焯30秒去草酸，捞出切段。',
+    '锅中加水烧开，加少许盐和香油。',
+    '缓慢淋入蛋液，用筷子搅出蛋花。',
+    '放入菠菜煮30秒即可关火。'
+  ], tips: '菠菜必须焯水去草酸，口感也更顺滑。' },
+
+  { name: '红烧茄子', category: '家常', time: '20分钟', ingredients: ['茄子', '大蒜', '酱油'], steps: [
+    '茄子切滚刀块，撒盐腌10分钟挤干水。',
+    '锅中多油，下茄子煎至表面微焦盛出。',
+    '锅中留油爆香蒜末，加生抽、老抽、糖和半碗水。',
+    '倒回茄子中火焖5分钟。',
+    '水淀粉勾薄芡，撒葱花出锅。'
+  ], tips: '腌过挤水的茄子不吸油，比直接炸健康很多。' },
+
+  { name: '手撕包菜', category: '家常', time: '10分钟', ingredients: ['白菜', '大蒜'], steps: [
+    '包菜用手撕成大片，洗净沥干。',
+    '热锅爆香蒜片和干辣椒。',
+    '倒入包菜大火翻炒1分钟。',
+    '沿锅边淋香醋和生抽，加盐炒匀出锅。'
+  ], tips: '手撕断面不规则更挂汁，比刀切好吃。' },
+
+  { name: '可乐鸡翅', category: '家常', time: '30分钟', ingredients: ['鸡肉', '生姜', '酱油'], steps: [
+    '鸡翅两面划刀，冷水下锅加姜片焯水3分钟。',
+    '捞出擦干，热锅少油煎至两面金黄。',
+    '倒入可乐没过鸡翅，加生抽和姜片。',
+    '大火烧开转中火煮15分钟。',
+    '开大火收汁至浓稠亮泽。'
+  ], tips: '收汁时要守着锅，糖分高很容易糊。' },
+
+  { name: '紫菜蛋花汤', category: '汤羹', time: '8分钟', ingredients: ['鸡蛋'], steps: [
+    '紫菜撕小块放入碗中，加虾皮、生抽、香油。',
+    '锅中烧开一碗半水。',
+    '蛋液缓慢淋入沸水搅出蛋花。',
+    '把汤冲入碗中，撒葱花即成。'
+  ], tips: '调料放碗里冲汤，比在锅里调味更鲜。' },
+
+  { name: '香菇滑鸡', category: '家常', time: '25分钟', ingredients: ['蘑菇', '鸡肉', '生姜'], steps: [
+    '鸡腿肉切块，加生抽、蚝油、淀粉、姜丝腌20分钟。',
+    '香菇泡发切片，泡菇水留用。',
+    '腌好的鸡块和香菇拌匀装盘。',
+    '水开后大火蒸15分钟。',
+    '出锅撒葱花，淋少许热油。'
+  ], tips: '腌料里加半勺油，蒸出来的鸡肉更滑。' },
+
+  { name: '三明治', category: '主食', time: '10分钟', ingredients: ['面包', '鸡蛋', '生菜'], steps: [
+    '吐司片用平底锅烤至微脆。',
+    '煎一个溏心蛋，火腿片煎香。',
+    '生菜洗净沥干。',
+    '按吐司-沙拉酱-生菜-火腿-鸡蛋-吐司的顺序叠好。',
+    '对角切开，用油纸包住方便拿。'
+  ], tips: '生菜放在酱和肉之间，能挡住水汽不让吐司变软。' },
+
+  { name: '莲藕排骨汤', category: '汤羹', time: '80分钟', ingredients: ['莲藕', '排骨', '生姜'], steps: [
+    '排骨焯水去血沫，洗净。',
+    '莲藕去皮切滚刀块，泡水防氧化。',
+    '砂锅加热水，放排骨和姜片，大火烧开转小火炖40分钟。',
+    '加入莲藕继续炖30分钟。',
+    '出锅前加盐和白胡椒粉。'
+  ], tips: '选粉藕炖汤才够糯，脆藕适合清炒。' },
+
+  { name: '洋葱炒蛋', category: '家常', time: '10分钟', ingredients: ['洋葱', '鸡蛋'], steps: [
+    '洋葱切丝，鸡蛋打散加盐。',
+    '热油炒蛋至凝固盛出。',
+    '锅中下洋葱丝中火炒2分钟至变软透明。',
+    '倒回鸡蛋，加生抽炒匀出锅。'
+  ], tips: '洋葱要炒到透明微甜，生洋葱味会盖过蛋香。' },
+
+  { name: '冬瓜排骨汤', category: '汤羹', time: '60分钟', ingredients: ['冬瓜', '排骨', '生姜'], steps: [
+    '排骨焯水洗净，冬瓜去皮切厚片。',
+    '锅中加热水放排骨和姜片，小火炖40分钟。',
+    '放入冬瓜再炖15分钟至透明。',
+    '加盐调味，撒葱花。'
+  ], tips: '冬瓜煮到半透明就够了，太久会化在汤里。' }
+];
+
+// ===== 食材存放建议字典 =====
+// zone: 冷冻层 / 冷藏层 / 常温 / 阴凉处
+const STORAGE_ADVICE = {
+  '鸡蛋': { zone: '冷藏层', tip: '冷藏避震，大头朝上放置' },
+  '牛奶': { zone: '冷藏层', tip: '2-5℃冷藏，开封后尽快饮用' },
+  '西红柿': { zone: '冷藏层', tip: '阴凉通风或冷藏保存' },
+  '黄瓜': { zone: '冷藏层', tip: '保鲜膜包裹，3-5天内食用' },
+  '生菜': { zone: '冷藏层', tip: '垫厨房纸吸水，保湿存放' },
+  '燕麦': { zone: '常温', tip: '干燥密封，常温保存' },
+  '米饭': { zone: '冷藏层', tip: '密封冷藏，2天内食用' },
+  '猪肉': { zone: '冷冻层', tip: '分装冷冻，解冻后不宜复冻' },
+  '鸡肉': { zone: '冷冻层', tip: '冷冻保存，冷藏室缓慢解冻' },
+  '鱼': { zone: '冷冻层', tip: '清理后冷冻，尽快食用' },
+  '豆腐': { zone: '冷藏层', tip: '浸水冷藏，每日换水' },
+  '胡萝卜': { zone: '阴凉处', tip: '去除绿叶，阴凉通风存放' },
+  '土豆': { zone: '阴凉处', tip: '避光防发芽，不可冷藏' },
+  '洋葱': { zone: '阴凉处', tip: '通风干燥，避免冷藏' },
+  '大蒜': { zone: '阴凉处', tip: '保持干燥，通风存放' },
+  '生姜': { zone: '阴凉处', tip: '沙土埋藏或冷藏均可' },
+  '白菜': { zone: '冷藏层', tip: '外层包裹，冷藏保鲜' },
+  '菠菜': { zone: '冷藏层', tip: '保湿冷藏，2天内食用' },
+  '茄子': { zone: '冷藏层', tip: '避免受冻，冷藏保存' },
+  '蘑菇': { zone: '冷藏层', tip: '纸袋包装，透气冷藏' },
+  '虾': { zone: '冷冻层', tip: '去虾线后冷冻保存' },
+  '牛肉': { zone: '冷冻层', tip: '分装小份，冷冻保存' },
+  '酸奶': { zone: '冷藏层', tip: '2-6℃冷藏，不可冷冻' },
+  '面包': { zone: '常温', tip: '密封常温，长期可冷冻' },
+  '苹果': { zone: '冷藏层', tip: '分开存放，防止催熟其他水果' },
+  '香蕉': { zone: '常温', tip: '常温存放，不可冷藏' },
+  '草莓': { zone: '冷藏层', tip: '不洗即存，2天内食用' },
+  '葡萄': { zone: '冷藏层', tip: '带蒂存放，保鲜膜覆盖' },
+  '柠檬': { zone: '冷藏层', tip: '切面覆膜，冷藏密封' },
+  '玉米': { zone: '冷藏层', tip: '带苞叶冷藏，尽快食用' },
+  '红薯': { zone: '阴凉处', tip: '通风防潮，不可冷藏' },
+  '南瓜': { zone: '阴凉处', tip: '完整常温，切开冷藏' },
+  '青椒': { zone: '冷藏层', tip: '保持干燥，冷藏保鲜' },
+  '芹菜': { zone: '冷藏层', tip: '铝箔纸包裹，保湿冷藏' },
+  '冬瓜': { zone: '阴凉处', tip: '完整常温，切开冷藏' },
+  '排骨': { zone: '冷冻层', tip: '分装小份，冷冻保存' },
+  '面粉': { zone: '常温', tip: '干燥密封，防虫防潮' },
+  '酱油': { zone: '常温', tip: '密封避光，常温存放' },
+  '醋': { zone: '常温', tip: '密封阴凉，常温存放' },
+  '火腿': { zone: '冷藏层', tip: '开封后冷藏，尽快食用' },
+  '培根': { zone: '冷冻层', tip: '分装冷冻，按需取用' },
+  '速冻饺子': { zone: '冷冻层', tip: '-18℃冷冻，避免反复解冻' },
+  '冰淇淋': { zone: '冷冻层', tip: '-18℃以下，密封防串味' },
+  '蓝莓': { zone: '冷藏层', tip: '不洗即存，保鲜盒存放' },
+  '芒果': { zone: '常温', tip: '催熟后常温，可转冷藏' },
+  '猕猴桃': { zone: '冷藏层', tip: '催熟后冷藏，延缓软化' },
+  '桃子': { zone: '冷藏层', tip: '成熟后冷藏，3-5天内食用' },
+  '栗子': { zone: '阴凉处', tip: '通风防虫，可冷藏' },
+  '莲藕': { zone: '冷藏层', tip: '带泥保湿，冷藏存放' },
+  '豆芽': { zone: '冷藏层', tip: '保鲜袋冷藏，1-2天内食用' },
+  '韭菜': { zone: '冷藏层', tip: '保鲜膜包裹，尽快食用' }
+};
+
+// ===== 食材智能识别字典 =====
+const FOOD_INFO = {
+  '鸡蛋': { unit: '个', shelfLife: 30 },
+  '牛奶': { unit: '瓶', shelfLife: 7 },
+  '酸奶': { unit: '瓶', shelfLife: 14 },
+  '面包': { unit: '袋', shelfLife: 3 },
+  '豆腐': { unit: '盒', shelfLife: 3 },
+  '西红柿': { unit: '斤', shelfLife: 7 },
+  '黄瓜': { unit: '根', shelfLife: 5 },
+  '胡萝卜': { unit: '根', shelfLife: 14 },
+  '土豆': { unit: '斤', shelfLife: 30 },
+  '洋葱': { unit: '个', shelfLife: 30 },
+  '大蒜': { unit: '头', shelfLife: 30 },
+  '生姜': { unit: '块', shelfLife: 20 },
+  '白菜': { unit: '斤', shelfLife: 7 },
+  '菠菜': { unit: '斤', shelfLife: 2 },
+  '生菜': { unit: '斤', shelfLife: 3 },
+  '芹菜': { unit: '斤', shelfLife: 5 },
+  '茄子': { unit: '斤', shelfLife: 5 },
+  '青椒': { unit: '斤', shelfLife: 7 },
+  '蘑菇': { unit: '盒', shelfLife: 3 },
+  '豆芽': { unit: '袋', shelfLife: 2 },
+  '韭菜': { unit: '斤', shelfLife: 2 },
+  '玉米': { unit: '根', shelfLife: 3 },
+  '红薯': { unit: '斤', shelfLife: 30 },
+  '南瓜': { unit: '块', shelfLife: 15 },
+  '冬瓜': { unit: '块', shelfLife: 15 },
+  '莲藕': { unit: '节', shelfLife: 7 },
+  '猪肉': { unit: '斤', shelfLife: 2 },
+  '鸡肉': { unit: '斤', shelfLife: 2 },
+  '牛肉': { unit: '斤', shelfLife: 2 },
+  '排骨': { unit: '斤', shelfLife: 2 },
+  '鱼': { unit: '条', shelfLife: 1 },
+  '虾': { unit: '斤', shelfLife: 1 },
+  '培根': { unit: '袋', shelfLife: 7 },
+  '火腿': { unit: '包', shelfLife: 7 },
+  '苹果': { unit: '个', shelfLife: 14 },
+  '香蕉': { unit: '根', shelfLife: 5 },
+  '草莓': { unit: '盒', shelfLife: 2 },
+  '葡萄': { unit: '斤', shelfLife: 5 },
+  '柠檬': { unit: '个', shelfLife: 14 },
+  '芒果': { unit: '个', shelfLife: 5 },
+  '猕猴桃': { unit: '个', shelfLife: 7 },
+  '桃子': { unit: '个', shelfLife: 5 },
+  '蓝莓': { unit: '盒', shelfLife: 5 },
+  '栗子': { unit: '斤', shelfLife: 15 },
+  '米饭': { unit: '盒', shelfLife: 2 },
+  '酱油': { unit: '瓶', shelfLife: 180 },
+  '醋': { unit: '瓶', shelfLife: 180 },
+  '食盐': { unit: '袋', shelfLife: 365 },
+  '糖': { unit: '袋', shelfLife: 365 },
+  '面粉': { unit: '袋', shelfLife: 180 },
+  '燕麦': { unit: '袋', shelfLife: 180 },
+  '速冻饺子': { unit: '袋', shelfLife: 60 },
+  '冰淇淋': { unit: '盒', shelfLife: 90 }
+};
+
+function getFoodInfo(name) {
+  if (FOOD_INFO[name]) return FOOD_INFO[name];
+  for (var key in FOOD_INFO) {
+    if (name.includes(key) || key.includes(name)) {
+      return FOOD_INFO[key];
+    }
+  }
+  return null;
+}
+
+function autoFillFridge() {
+  var name = document.getElementById('fridge-name').value.trim();
+  var hint = document.getElementById('fridge-hint');
+  if (!name) {
+    hint.style.display = 'none';
+    return;
+  }
+  var info = getFoodInfo(name);
+  if (info) {
+    // 自动设置单位
+    var unitSelect = document.getElementById('fridge-unit');
+    var opts = unitSelect.options;
+    var found = false;
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].value === info.unit) {
+        unitSelect.selectedIndex = i;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      // 添加自定义单位选项
+      var newOpt = document.createElement('option');
+      newOpt.value = info.unit;
+      newOpt.textContent = info.unit;
+      unitSelect.insertBefore(newOpt, unitSelect.firstChild);
+      unitSelect.value = info.unit;
+    }
+    // 自动设置保质期
+    document.getElementById('fridge-shelflife').value = info.shelfLife;
+    hint.textContent = '已识别「' + name + '」，建议单位 ' + info.unit + '，保质期 ' + info.shelfLife + ' 天';
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+// ===== 工具函数 =====
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function todayStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function daysBetween(dateStr1, dateStr2) {
+  const d1 = new Date(dateStr1);
+  const d2 = new Date(dateStr2);
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
+  return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+}
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function formatDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function formatDateShort(d) {
+  return (d.getMonth()+1) + '/' + d.getDate();
+}
+
+function getStorageAdvice(name) {
+  if (STORAGE_ADVICE[name]) return STORAGE_ADVICE[name];
+  for (const key in STORAGE_ADVICE) {
+    if (name.includes(key) || key.includes(name)) {
+      return STORAGE_ADVICE[key];
+    }
+  }
+  return { zone: '冷藏层', tip: '建议冷藏保鲜' };
+}
+
+// ===== 物品智能识别字典 =====
+// { 品名: { cycle: 天数, consumable: true/false } }
+const ITEM_CYCLES = {
+  '抽纸': { cycle: 30, category: 'daily' },
+  '纸巾': { cycle: 30, category: 'daily' },
+  '卷纸': { cycle: 25, category: 'daily' },
+  '卫生纸': { cycle: 25, category: 'daily' },
+  '湿巾': { cycle: 45, category: 'daily' },
+  '垃圾袋': { cycle: 30, category: 'daily' },
+  '保鲜膜': { cycle: 90, category: 'daily' },
+  '保鲜袋': { cycle: 60, category: 'daily' },
+  '洗洁精': { cycle: 60, category: 'periodic' },
+  '洗衣液': { cycle: 60, category: 'periodic' },
+  '洗衣粉': { cycle: 60, category: 'periodic' },
+  '柔顺剂': { cycle: 60, category: 'periodic' },
+  '洗发水': { cycle: 60, category: 'periodic' },
+  '沐浴露': { cycle: 60, category: 'periodic' },
+  '护发素': { cycle: 60, category: 'periodic' },
+  '洗手液': { cycle: 60, category: 'periodic' },
+  '牙膏': { cycle: 60, category: 'periodic' },
+  '牙刷': { cycle: 90, category: 'periodic' },
+  '漱口水': { cycle: 90, category: 'periodic' },
+  '毛巾': { cycle: 90, category: 'periodic' },
+  '浴巾': { cycle: 90, category: 'periodic' },
+  '面巾': { cycle: 60, category: 'periodic' },
+  '抹布': { cycle: 30, category: 'daily' },
+  '洗碗布': { cycle: 30, category: 'daily' },
+  '海绵': { cycle: 30, category: 'daily' },
+  '钢丝球': { cycle: 60, category: 'daily' },
+  '拖把': { cycle: 180, category: 'periodic' },
+  '扫把': { cycle: 180, category: 'durable' },
+  '滤芯': { cycle: 180, category: 'periodic' },
+  '净水器滤芯': { cycle: 180, category: 'periodic' },
+  '空气滤芯': { cycle: 90, category: 'periodic' },
+  '空调滤网': { cycle: 120, category: 'periodic' },
+  '干燥剂': { cycle: 60, category: 'daily' },
+  '除湿盒': { cycle: 60, category: 'daily' },
+  '蚊香': { cycle: 30, category: 'daily' },
+  '花露水': { cycle: 90, category: 'periodic' },
+  '电池': { cycle: 0, category: 'emergency' },
+  '灯泡': { cycle: 0, category: 'durable' },
+  '指甲刀': { cycle: 0, category: 'durable' },
+  '梳子': { cycle: 180, category: 'periodic' },
+  '枕头': { cycle: 365, category: 'periodic' },
+  '枕芯': { cycle: 365, category: 'periodic' },
+  '床单': { cycle: 180, category: 'periodic' },
+  '被套': { cycle: 180, category: 'periodic' },
+  '枕套': { cycle: 90, category: 'periodic' },
+  '马桶刷': { cycle: 180, category: 'periodic' },
+  '花洒': { cycle: 365, category: 'periodic' },
+  '雨刮器': { cycle: 180, category: 'periodic' },
+  '墨盒': { cycle: 120, category: 'periodic' },
+  '碳粉': { cycle: 120, category: 'periodic' },
+  '创可贴': { cycle: 0, category: 'emergency' },
+  '碘伏': { cycle: 0, category: 'emergency' },
+  '感冒药': { cycle: 0, category: 'emergency' },
+  '手电筒': { cycle: 0, category: 'emergency' },
+  '灭火器': { cycle: 0, category: 'emergency' },
+  '急救箱': { cycle: 0, category: 'emergency' }
+};
+
+var ITEM_CATEGORIES = {
+  daily: { label: '日耗品', desc: '日常高频消耗，需定期补充', hasCycle: true, defaultCycle: 30 },
+  periodic: { label: '周期品', desc: '定期更换，有使用周期', hasCycle: true, defaultCycle: 90 },
+  durable: { label: '耐用品', desc: '长期使用，无需定期更换', hasCycle: false, defaultCycle: 0 },
+  emergency: { label: '应急品', desc: '备用应急，定期检查', hasCycle: false, defaultCycle: 0 }
+};
+
+function getItemCycle(name) {
+  if (ITEM_CYCLES[name]) return ITEM_CYCLES[name];
+  for (const key in ITEM_CYCLES) {
+    if (name.includes(key) || key.includes(name)) {
+      return ITEM_CYCLES[key];
+    }
+  }
+  return null;
+}
+
+function autoFillItem() {
+  var name = document.getElementById('item-name').value.trim();
+  var hint = document.getElementById('item-hint');
+  if (!name) {
+    hint.style.display = 'none';
+    return;
+  }
+  var matched = getItemCycle(name);
+  if (matched) {
+    var catInfo = ITEM_CATEGORIES[matched.category];
+    document.getElementById('item-category').value = matched.category;
+    if (catInfo.hasCycle && matched.cycle > 0) {
+      document.getElementById('item-cycle-wrap').style.display = '';
+      document.getElementById('item-cycle').value = matched.cycle;
+    } else {
+      document.getElementById('item-cycle-wrap').style.display = 'none';
+    }
+    hint.textContent = '已识别「' + name + '」→ ' + catInfo.label + (matched.cycle > 0 ? '，建议周期 ' + matched.cycle + ' 天' : '');
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show';
+  if (type) toast.classList.add(type);
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+function showModal(title, msg, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').textContent = msg;
+  modalConfirmCallback = onConfirm;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  modalConfirmCallback = null;
+}
+
+document.getElementById('modal-confirm-btn').addEventListener('click', function() {
+  if (modalConfirmCallback) modalConfirmCallback();
+  closeModal();
+});
+
+// ===== 存储读写 =====
+function saveData(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    showToast('存储失败，数据可能过大', 'warning');
+  }
+}
+
+function loadData(key, defaultVal) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : defaultVal;
+  } catch (e) {
+    return defaultVal;
+  }
+}
+
+// ===== 物品管理 =====
+function onCategoryChange() {
+  var cat = document.getElementById('item-category').value;
+  var catInfo = ITEM_CATEGORIES[cat];
+  document.getElementById('item-cycle-wrap').style.display = catInfo.hasCycle ? 'flex' : 'none';
+  if (catInfo.hasCycle && catInfo.defaultCycle > 0) {
+    document.getElementById('item-cycle').value = catInfo.defaultCycle;
+  }
+}
+
+function addItem() {
+  const name = document.getElementById('item-name').value.trim();
+  if (!name) { showToast('请输入物品名称', 'warning'); return; }
+  const category = document.getElementById('item-category').value;
+  const catInfo = ITEM_CATEGORIES[category];
+  const cycleDays = catInfo.hasCycle ? parseInt(document.getElementById('item-cycle').value) || catInfo.defaultCycle : 0;
+  const today = todayStr();
+  items.push({
+    id: generateId(),
+    name: name,
+    category: category,
+    cycleDays: cycleDays,
+    addDate: today,
+    resetDate: today
+  });
+  saveData(KEYS.items, items);
+  document.getElementById('item-name').value = '';
+  renderAll();
+  showToast('已添加：' + name, 'success');
+}
+
+function resetItemDate(id) {
+  const item = items.find(function(i) { return i.id === id; });
+  if (item) {
+    item.resetDate = todayStr();
+    saveData(KEYS.items, items);
+    renderAll();
+    showToast(item.name + ' 倒计时已重置', 'success');
+  }
+}
+
+function deleteItem(id) {
+  items = items.filter(function(i) { return i.id !== id; });
+  saveData(KEYS.items, items);
+  renderAll();
+}
+
+function renderItems() {
+  const grid = document.getElementById('items-grid');
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="list-empty">还没有物品，添加一个吧</div>';
+    return;
+  }
+  const today = todayStr();
+  let html = '';
+  items.forEach(function(item) {
+    var cat = item.category || (item.isConsumable ? (item.cycleDays > 0 ? 'periodic' : 'daily') : 'durable');
+    var catInfo = ITEM_CATEGORIES[cat];
+    let countdownHtml = '';
+    let cardClass = 'card';
+    if (catInfo.hasCycle && item.cycleDays > 0) {
+      const passed = daysBetween(item.resetDate, today);
+      const left = item.cycleDays - passed;
+      if (left <= 0) {
+        cardClass = 'card overdue';
+        countdownHtml = '<span class="countdown overdue-text">已过期 ' + Math.abs(left) + ' 天</span>';
+      } else if (left <= 3) {
+        cardClass = 'card expiring';
+        countdownHtml = '<span class="countdown expiring-text">还有 ' + left + ' 天</span>';
+      } else {
+        countdownHtml = '<span class="countdown">还有 ' + left + ' 天</span>';
+      }
+    }
+    const typeTag = '<span class="tag tag-' + cat + '">' + catInfo.label + '</span>';
+    html += '<div class="' + cardClass + '">';
+    html += '<div class="card-name">' + escapeHtml(item.name) + '</div>';
+    html += '<div class="card-meta">' + typeTag + countdownHtml + '</div>';
+    html += '<div class="card-actions">';
+    if (catInfo.hasCycle && item.cycleDays > 0) {
+      html += '<button class="btn btn-sm" onclick="resetItemDate(\'' + item.id + '\')" title="重置倒计时">';
+      html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>';
+      html += ' 重置</button>';
+    }
+    html += '<button class="btn btn-sm btn-danger" onclick="deleteItem(\'' + item.id + '\')" title="删除">';
+    html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
+    html += '</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ===== 冰箱管理 =====
+function addFridgeItem() {
+  const name = document.getElementById('fridge-name').value.trim();
+  if (!name) { showToast('请输入食材名称', 'warning'); return; }
+  const date = document.getElementById('fridge-date').value || todayStr();
+  const shelfLife = parseInt(document.getElementById('fridge-shelflife').value) || 7;
+  const qty = parseFloat(document.getElementById('fridge-qty').value) || 1;
+  const unit = document.getElementById('fridge-unit').value;
+
+  // 检查是否已有同日期+同名称+同单位的食材，合并数量
+  var existing = fridge.find(function(f) {
+    return f.name === name && f.purchaseDate === date && f.unit === unit;
+  });
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + qty;
+    existing.shelfLifeDays = shelfLife; // 更新保质期
+    saveData(KEYS.fridge, fridge);
+    showToast(name + ' 已合并数量（共 ' + existing.quantity + ' ' + unit + '）', 'success');
+  } else {
+    fridge.push({
+      id: generateId(),
+      name: name,
+      purchaseDate: date,
+      shelfLifeDays: shelfLife,
+      quantity: qty,
+      unit: unit
+    });
+    saveData(KEYS.fridge, fridge);
+    showToast('已添加：' + name, 'success');
+  }
+  document.getElementById('fridge-name').value = '';
+  document.getElementById('fridge-qty').value = '1';
+  document.getElementById('fridge-hint').style.display = 'none';
+  renderAll();
+}
+
+function deleteFridgeItem(id) {
+  fridge = fridge.filter(function(f) { return f.id !== id; });
+  saveData(KEYS.fridge, fridge);
+  renderAll();
+}
+
+function renderFridge() {
+  const grid = document.getElementById('fridge-grid');
+  if (fridge.length === 0) {
+    grid.innerHTML = '<div class="list-empty">冰箱空空如也，添加食材吧</div>';
+    return;
+  }
+  const today = todayStr();
+
+  // 按剩余保质期正序排序（最紧急的在前）
+  var sorted = fridge.slice().sort(function(a, b) {
+    var leftA = a.shelfLifeDays - daysBetween(a.purchaseDate, today);
+    var leftB = b.shelfLifeDays - daysBetween(b.purchaseDate, today);
+    return leftA - leftB;
+  });
+
+  // 检测同名称但不同购买日期的食材（需要"注意区分"）
+  var nameDateMap = {};
+  fridge.forEach(function(f) {
+    if (!nameDateMap[f.name]) nameDateMap[f.name] = new Set();
+    nameDateMap[f.name].add(f.purchaseDate);
+  });
+  var multiDateNames = {};
+  for (var n in nameDateMap) {
+    if (nameDateMap[n].size > 1) multiDateNames[n] = true;
+  }
+
+  // 同名食材中，找出剩余保质期最短的（优先使用）
+  var nameMinLeft = {};
+  fridge.forEach(function(f) {
+    var left = f.shelfLifeDays - daysBetween(f.purchaseDate, today);
+    if (!(f.name in nameMinLeft) || left < nameMinLeft[f.name]) {
+      nameMinLeft[f.name] = left;
+    }
+  });
+
+  let html = '';
+  sorted.forEach(function(f) {
+    const passed = daysBetween(f.purchaseDate, today);
+    const left = f.shelfLifeDays - passed;
+    let cardClass = 'card';
+    let leftHtml = '';
+    if (left <= 0) {
+      cardClass = 'card overdue';
+      leftHtml = '<span class="countdown overdue-text">已过期 ' + Math.abs(left) + ' 天</span>';
+    } else if (left <= 2) {
+      cardClass = 'card expiring';
+      leftHtml = '<span class="countdown expiring-text">还剩 ' + left + ' 天</span>';
+    } else {
+      leftHtml = '<span class="countdown">还剩 ' + left + ' 天</span>';
+    }
+    const advice = getStorageAdvice(f.name);
+    const zoneClass = advice.zone === '冷冻层' ? 'zone-freeze' :
+                      advice.zone === '冷藏层' ? 'zone-cool' :
+                      advice.zone === '阴凉处' ? 'zone-shade' : 'zone-room';
+    html += '<div class="' + cardClass + '">';
+    html += '<div class="card-name">' + escapeHtml(f.name) + '<span class="card-qty">×' + (f.quantity || 1) + ' ' + escapeHtml(f.unit || '个') + '</span></div>';
+    html += '<div class="card-meta"><span class="tag tag-neutral">购于 ' + f.purchaseDate + '</span>';
+    // 同名不同日期 → 注意区分标签
+    if (multiDateNames[f.name]) {
+      html += '<span class="tag tag-warning">注意区分</span>';
+    }
+    // 同名中保质期最短的且剩余≤5天 → 优先使用标签
+    if (nameMinLeft[f.name] === left && left > 0 && left <= 5) {
+      html += '<span class="tag tag-success">优先使用</span>';
+    }
+    html += leftHtml + '</div>';
+    html += '<div class="storage-advice">';
+    html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+    html += '<span class="storage-zone ' + zoneClass + '">' + advice.zone + '</span>';
+    html += '<span>' + advice.tip + '</span>';
+    html += '</div>';
+    html += '<div class="card-actions">';
+    html += '<button class="btn btn-sm btn-danger" onclick="deleteFridgeItem(\'' + f.id + '\')" title="删除">';
+    html += '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
+    html += ' 删除</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ===== 日期与转义小工具 =====
+function addDaysStr(dateStr, n) {
+  var d = new Date(dateStr);
+  d.setDate(d.getDate() + n);
+  return formatDate(d);
+}
+
+// YYYY-MM-DD -> M/D
+function mdOf(dateStr) {
+  var p = String(dateStr).split('-');
+  return parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+}
+
+// 用于内联事件属性中的字符串参数
+function jsAttr(str) {
+  return String(str).replace(/['"\\]/g, '');
+}
+
+// ===== 菜谱基础工具 =====
+function getAllRecipes() {
+  return RECIPES.concat(customRecipes);
+}
+
+function getRecipeByName(name) {
+  return getAllRecipes().find(function(r) { return r.name === name; });
+}
+
+function isCustomRecipe(name) {
+  return customRecipes.some(function(r) { return r.name === name; });
+}
+
+function matchRecipe(text, q) {
+  return (text || '').toLowerCase().indexOf(q) !== -1;
+}
+
+function recipeMatchesQuery(r, q) {
+  if (!q) return true;
+  if (matchRecipe(r.name, q)) return true;
+  if (matchRecipe(r.category, q)) return true;
+  return r.ingredients.some(function(i) { return matchRecipe(i, q); });
+}
+
+// 冰箱中该食材的最早过期日期（YYYY-MM-DD），没有则返回 null
+function getIngredientExpiry(name) {
+  var best = null;
+  fridge.forEach(function(f) {
+    if (f.name !== name) return;
+    var exp = addDaysStr(f.purchaseDate, f.shelfLifeDays);
+    if (best === null || exp < best) best = exp;
+  });
+  return best;
+}
+
+// 距今天还有几天过期（负数表示已过期）
+function expiryDaysLeft(name) {
+  var exp = getIngredientExpiry(name);
+  if (!exp) return null;
+  return daysBetween(todayStr(), exp);
+}
+
+// ===== 今日食谱推荐 =====
+var RECOMMEND_LIMIT = 20;
+
+function recommendRecipes() {
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  return getAllRecipes().map(function(r) {
+    var matched = [];
+    var missing = [];
+    var expiringUsed = [];
+    r.ingredients.forEach(function(i) {
+      if (fridgeNames.indexOf(i) !== -1) {
+        matched.push(i);
+        var left = expiryDaysLeft(i);
+        // 只把「还没过期但快到期」的算作加分项，已过期的交给冰箱模块提醒
+        if (left !== null && left >= 0 && left <= 3) expiringUsed.push({ name: i, days: left });
+      } else {
+        missing.push(i);
+      }
+    });
+    // 打分：食材匹配度为主，能消耗临期食材的额外加权
+    var score = matched.length / r.ingredients.length;
+    expiringUsed.forEach(function(e) {
+      score += 0.45 - e.days * 0.1;
+    });
+    return {
+      name: r.name,
+      category: r.category,
+      time: r.time || '',
+      ingredients: r.ingredients,
+      matched: matched,
+      missing: missing,
+      expiringUsed: expiringUsed,
+      score: score
+    };
+  }).sort(function(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.missing.length - b.missing.length;
+  });
+}
+
+function renderRecipes() {
+  var grid = document.getElementById('recipe-grid');
+  if (!grid) return;
+  var recs = recommendRecipes();
+  if (recipeSearch) {
+    recs = recs.filter(function(r) { return recipeMatchesQuery(r, recipeSearch); });
+  }
+  recs = recs.slice(0, RECOMMEND_LIMIT);
+  if (recs.length === 0) {
+    grid.innerHTML = '<div class="list-empty">没有匹配的菜谱' + (recipeSearch ? '，换个关键词试试' : '') + '</div>';
+    return;
+  }
+  var html = '';
+  recs.forEach(function(r) {
+    var matchRate = Math.round(r.matched.length / r.ingredients.length * 100);
+    var useExpiring = r.expiringUsed.length > 0;
+    html += '<div class="recipe-card' + (useExpiring ? ' use-expiring' : '') + '" onclick="openRecipeDetail(\'' + jsAttr(r.name) + '\')">';
+    html += '<div class="recipe-name">' + escapeHtml(r.name);
+    if (useExpiring) {
+      var soon = r.expiringUsed.slice().sort(function(a, b) { return a.days - b.days; })[0];
+      var label = soon.days === 0 ? escapeHtml(soon.name) + '今天到期' : escapeHtml(soon.name) + '剩' + soon.days + '天';
+      html += '<span class="recipe-badge">' + label + '</span>';
+    } else if (matchRate === 100) {
+      html += '<span class="recipe-badge full">食材齐全</span>';
+    }
+    html += '</div>';
+    html += '<div class="match-rate">食材 ' + r.matched.length + '/' + r.ingredients.length +
+            (r.missing.length ? ' · 缺 ' + r.missing.length + ' 样' : '') +
+            (r.time ? ' · 约' + escapeHtml(r.time) : '') + '</div>';
+    html += '<div class="recipe-ingredients">';
+    r.ingredients.forEach(function(ing) {
+      if (r.matched.indexOf(ing) !== -1) {
+        html += '<span class="ingredient-chip have"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' + escapeHtml(ing) + '</span>';
+      } else {
+        html += '<span class="ingredient-chip miss"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' + escapeHtml(ing) + '</span>';
+      }
+    });
+    html += '</div>';
+    html += '<div class="recipe-card-foot"><span>' + escapeHtml(r.category) + '</span><span class="recipe-view-link">查看做法 ›</span></div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+function onRecipeSearch(val) {
+  recipeSearch = (val || '').trim().toLowerCase();
+  renderRecipes();
+}
+
+// ===== 菜谱库 =====
+var LIB_CATS = ['全部', '家常', '汤羹', '清淡', '凉拌', '主食', '饮品', '我的菜谱'];
+
+function onLibrarySearch(val) {
+  librarySearch = (val || '').trim().toLowerCase();
+  renderLibrary();
+}
+
+function setLibraryCat(cat) {
+  libraryCat = cat;
+  renderLibrary();
+}
+
+function renderLibrary() {
+  var filters = document.getElementById('lib-filters');
+  var grid = document.getElementById('library-grid');
+  var countEl = document.getElementById('lib-count');
+  if (!grid) return;
+
+  if (filters) {
+    var fh = '';
+    LIB_CATS.forEach(function(c) {
+      fh += '<button class="lib-chip' + (libraryCat === c ? ' active' : '') + '" onclick="setLibraryCat(\'' + jsAttr(c) + '\')">' + escapeHtml(c) + '</button>';
+    });
+    filters.innerHTML = fh;
+  }
+
+  var all = getAllRecipes();
+  var list = all.filter(function(r) {
+    if (libraryCat === '我的菜谱') { if (!isCustomRecipe(r.name)) return false; }
+    else if (libraryCat !== '全部' && r.category !== libraryCat) return false;
+    return recipeMatchesQuery(r, librarySearch);
+  });
+
+  if (countEl) {
+    countEl.textContent = '共 ' + all.length + ' 道菜谱（内置 ' + RECIPES.length + ' · 自建 ' + customRecipes.length +
+                          '）　当前显示 ' + list.length + ' 道';
+  }
+
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="list-empty">这里还没有菜谱，点右上角「新建菜谱」加一道吧</div>';
+    return;
+  }
+
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  var html = '';
+  list.forEach(function(r) {
+    var have = r.ingredients.filter(function(i) { return fridgeNames.indexOf(i) !== -1; });
+    var custom = isCustomRecipe(r.name);
+    html += '<div class="recipe-card" onclick="openRecipeDetail(\'' + jsAttr(r.name) + '\')">';
+    html += '<div class="recipe-name">' + escapeHtml(r.name);
+    if (custom) html += '<span class="recipe-badge custom">自建</span>';
+    html += '</div>';
+    html += '<div class="match-rate">' + escapeHtml(r.category) + (r.time ? ' · 约' + escapeHtml(r.time) : '') +
+            ' · 冰箱已有 ' + have.length + '/' + r.ingredients.length + ' 种</div>';
+    html += '<div class="recipe-ingredients">';
+    r.ingredients.forEach(function(ing) {
+      var cls = have.indexOf(ing) !== -1 ? 'have' : '';
+      html += '<span class="ingredient-chip ' + cls + '">' + escapeHtml(ing) + '</span>';
+    });
+    html += '</div>';
+    html += '<div class="recipe-card-foot"><span>' + (r.steps ? r.steps.length + ' 步做法' : '暂无做法') +
+            '</span><span class="recipe-view-link">查看教程 ›</span></div>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+// ===== 菜谱详情（含教程） =====
+function openRecipeDetail(name) {
+  var r = getRecipeByName(name);
+  if (!r) return;
+  detailRecipe = name;
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  var custom = isCustomRecipe(name);
+
+  document.getElementById('rd-title').textContent = '菜谱详情';
+
+  var html = '<div class="rd-head">';
+  html += '<span class="rd-name">' + escapeHtml(r.name) + '</span>';
+  html += '<span class="rd-meta">' + escapeHtml(r.category || '') + (r.time ? ' · 约' + escapeHtml(r.time) : '') + '</span>';
+  if (custom) html += '<span class="recipe-badge custom">自建</span>';
+  html += '</div>';
+
+  html += '<div class="rd-section-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h12"/></svg>所需食材</div>';
+  html += '<div class="recipe-ingredients">';
+  r.ingredients.forEach(function(ing) {
+    var has = fridgeNames.indexOf(ing) !== -1;
+    var left = has ? expiryDaysLeft(ing) : null;
+    var extra = '';
+    if (has && left !== null) {
+      if (left < 0) extra = '（已过期）';
+      else if (left <= 3) extra = '（剩' + left + '天）';
+    }
+    html += '<span class="ingredient-chip ' + (has ? 'have' : 'miss') + '">' + escapeHtml(ing) + extra + '</span>';
+  });
+  html += '</div>';
+
+  html += '<div class="rd-section-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>做法步骤</div>';
+  if (r.steps && r.steps.length) {
+    html += '<ol class="rd-steps">';
+    r.steps.forEach(function(s) { html += '<li>' + escapeHtml(s) + '</li>'; });
+    html += '</ol>';
+  } else {
+    html += '<div class="list-empty" style="padding:14px">这道菜还没写做法</div>';
+  }
+
+  if (r.tips) {
+    html += '<div class="rd-section-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/><path d="M9 21h6"/></svg>小贴士</div>';
+    html += '<div class="rd-tips">' + escapeHtml(r.tips) + '</div>';
+  }
+
+  // 加入本周计划
+  html += '<div class="rd-addrow">';
+  html += '<div class="form-group"><label class="form-label">安排到</label>';
+  html += '<select id="rd-day">';
+  WP_DAYS.forEach(function(d, i) {
+    var dow = i + 1;
+    var sel = dow === (new Date().getDay() || 7) ? ' selected' : '';
+    html += '<option value="' + dow + '"' + sel + '>' + d + '（' + mdOf(getWeekDate(dow)) + '）</option>';
+  });
+  html += '</select></div>';
+  html += '<div class="form-group"><label class="form-label">餐次</label>';
+  html += '<select id="rd-meal">';
+  WP_MEALS.forEach(function(m) { html += '<option value="' + m.key + '">' + m.full + '</option>'; });
+  html += '</select></div>';
+  html += '<button class="btn btn-primary" onclick="addDetailToPlan()">加入本周食谱</button>';
+  html += '</div>';
+
+  document.getElementById('rd-body').innerHTML = html;
+
+  var actions = '';
+  if (custom) {
+    actions += '<button class="btn btn-danger" onclick="deleteCustomRecipe(\'' + jsAttr(name) + '\')">删除该菜谱</button>';
+  }
+  actions += '<button class="btn" onclick="closeRecipeDetail()">关闭</button>';
+  document.getElementById('rd-actions').innerHTML = actions;
+
+  document.getElementById('recipe-detail-overlay').classList.add('show');
+}
+
+function closeRecipeDetail() {
+  document.getElementById('recipe-detail-overlay').classList.remove('show');
+  detailRecipe = null;
+}
+
+function addDetailToPlan() {
+  if (!detailRecipe) return;
+  var dow = document.getElementById('rd-day').value;
+  var meal = document.getElementById('rd-meal').value;
+  var name = detailRecipe;
+  closeRecipeDetail();
+  addWeekRecipe(dow + '-' + meal, name);
+}
+
+// ===== 本周食谱设置 =====
+var WP_DAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+var WP_MEALS = [
+  { key: 'breakfast', label: '早', full: '早餐' },
+  { key: 'lunch', label: '中', full: '午餐' },
+  { key: 'dinner', label: '晚', full: '晚餐' }
+];
+
+// 本周周一的日期
+function getWeekMonday() {
+  var d = new Date();
+  var dow = d.getDay() || 7;
+  d.setDate(d.getDate() - (dow - 1));
+  return formatDate(d);
+}
+
+// 第 dow 天（1=周一）的日期字符串
+function getWeekDate(dow) {
+  return addDaysStr(getWeekMonday(), parseInt(dow, 10) - 1);
+}
+
+function slotDate(slot) {
+  return getWeekDate(slot.split('-')[0]);
+}
+
+function slotLabel(slot) {
+  var parts = slot.split('-');
+  var day = WP_DAYS[parseInt(parts[0], 10) - 1] || '';
+  var meal = WP_MEALS.find(function(m) { return m.key === parts[1]; });
+  return day + (meal ? meal.full : '');
+}
+
+// 取某餐的菜谱数组（兼容旧的单对象结构）
+function getSlotDishes(slot) {
+  var v = weekPlan[slot];
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  return [v];
+}
+
+function refOf(slot, recipeName) {
+  return slot + '|' + recipeName;
+}
+
+// 检查某道菜在某餐是否有食材会提前过期
+function getDishExpiryIssues(slot, dish) {
+  var mealDate = slotDate(slot);
+  var today = todayStr();
+  var issues = [];
+  var recipe = getRecipeByName(dish.recipe);
+  if (!recipe) return issues;
+  // 已经过去的餐次不再提醒
+  if (mealDate < today) return issues;
+  recipe.ingredients.forEach(function(ing) {
+    var exp = getIngredientExpiry(ing);
+    if (!exp) return;              // 冰箱里没有，属于「待购买」不算冲突
+    if (exp >= mealDate) return;   // 能撑到那天
+    issues.push({
+      ingredient: ing,
+      expiry: exp,
+      expired: exp < today,
+      daysGap: daysBetween(exp, mealDate)
+    });
+  });
+  return issues;
+}
+
+function renderWeekPlan() {
+  var wrap = document.getElementById('week-plan');
+  if (!wrap) return;
+  var titleEl = document.getElementById('week-plan-title');
+  if (titleEl) {
+    titleEl.textContent = '本周食谱设置（' + mdOf(getWeekMonday()) + ' - ' + mdOf(getWeekDate(7)) + '）';
+  }
+  var todayDow = (new Date().getDay() || 7);
+  var html = '<div class="wp-grid">';
+  html += '<div class="wp-row wp-head"><div class="wp-corner"></div>';
+  WP_MEALS.forEach(function(m) { html += '<div class="wp-meal-label">' + m.label + '</div>'; });
+  html += '</div>';
+
+  WP_DAYS.forEach(function(day, di) {
+    var dIndex = di + 1;
+    var isToday = dIndex === todayDow;
+    html += '<div class="wp-row' + (isToday ? ' wp-today-row' : '') + '">';
+    html += '<div class="wp-day' + (isToday ? ' wp-today' : '') + '">' + day +
+            '<span style="font-size:10px;color:var(--text-light)">' + mdOf(getWeekDate(dIndex)) + '</span>' +
+            (isToday ? '<span class="wp-today-badge">今天</span>' : '') + '</div>';
+    WP_MEALS.forEach(function(m) {
+      var slot = dIndex + '-' + m.key;
+      var dishes = getSlotDishes(slot);
+      html += '<div class="wp-cell">';
+      var totalMiss = 0;
+      dishes.forEach(function(d) {
+        var issues = getDishExpiryIssues(slot, d);
+        totalMiss += (d.missing || []).length;
+        html += '<div class="wp-dish' + (issues.length ? ' wp-dish-warn' : '') + '">';
+        html += '<span class="wp-dish-name" onclick="openRecipeDetail(\'' + jsAttr(d.recipe) + '\')" title="查看做法">' +
+                (issues.length ? '<span class="wp-warn-dot">!</span>' : '') + escapeHtml(d.recipe) + '</span>';
+        html += '<span class="wp-dish-x" onclick="removeWeekRecipe(\'' + slot + '\',\'' + jsAttr(d.recipe) + '\')" title="移除">×</span>';
+        html += '</div>';
+      });
+      if (dishes.length > 0 && totalMiss > 0) {
+        html += '<div class="wp-recipe-meta wp-miss">缺 ' + totalMiss + ' 样</div>';
+      } else if (dishes.length > 0) {
+        html += '<div class="wp-recipe-meta wp-ok">齐全</div>';
+      }
+      html += '<button class="wp-add-btn" onclick="openRecipePicker(\'' + slot + '\')">＋ ' + (dishes.length ? '加菜' : '添加') + '</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+  renderExpiryAlerts();
+}
+
+// ===== 保质期冲突提醒 =====
+function collectExpiryConflicts() {
+  var out = [];
+  Object.keys(weekPlan).forEach(function(slot) {
+    getSlotDishes(slot).forEach(function(dish) {
+      var issues = getDishExpiryIssues(slot, dish);
+      if (issues.length) {
+        issues.sort(function(a, b) { return a.expiry < b.expiry ? -1 : 1; });
+        out.push({ slot: slot, recipe: dish.recipe, issues: issues, date: slotDate(slot) });
+      }
+    });
+  });
+  out.sort(function(a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+  return out;
+}
+
+// 该菜最晚能被安排到哪天（受最早过期食材限制），返回 dow 或 null
+function suggestEarlierDow(conflict) {
+  var earliest = conflict.issues[0].expiry;   // 最早过期日
+  var today = todayStr();
+  if (earliest < today) return null;          // 已经过期，只能换菜或补货
+  var target = null;
+  for (var dow = 1; dow <= 7; dow++) {
+    var d = getWeekDate(dow);
+    if (d < today) continue;
+    if (d <= earliest) target = dow;          // 取不晚于过期日的最后一天
+  }
+  return target;
+}
+
+function renderExpiryAlerts() {
+  var wrap = document.getElementById('expiry-alert-wrap');
+  if (!wrap) return;
+  var conflicts = collectExpiryConflicts();
+  if (conflicts.length === 0) { wrap.innerHTML = ''; return; }
+
+  var html = '<div class="expiry-alert">';
+  html += '<div class="expiry-alert-title">';
+  html += '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+  html += '保质期冲突 ' + conflicts.length + ' 处 · 食材撑不到做菜那天';
+  html += '</div>';
+
+  conflicts.forEach(function(c) {
+    var mealName = slotLabel(c.slot);
+    var names = c.issues.map(function(i) { return i.ingredient; }).join('、');
+    var first = c.issues[0];
+    html += '<div class="expiry-alert-item">';
+    html += '<div class="ea-text">';
+    html += '<strong>' + escapeHtml(mealName) + '（' + mdOf(c.date) + '）</strong> 的「' + escapeHtml(c.recipe) + '」：';
+    if (first.expired) {
+      html += '<span class="ea-strong">' + escapeHtml(names) + ' 已过期</span>，建议补货或换一道菜。';
+    } else {
+      html += '<span class="ea-strong">' + escapeHtml(names) + '</span> ' + mdOf(first.expiry) +
+              ' 就到期，比这餐早 ' + first.daysGap + ' 天。';
+    }
+    html += '</div>';
+    html += '<div class="ea-actions">';
+    var sug = suggestEarlierDow(c);
+    if (sug !== null) {
+      html += '<button class="btn btn-sm btn-primary" onclick="moveDishEarlier(\'' + c.slot + '\',\'' + jsAttr(c.recipe) + '\',' + sug + ')">提前到' +
+              WP_DAYS[sug - 1] + '（' + mdOf(getWeekDate(sug)) + '）</button>';
+    }
+    html += '<button class="btn btn-sm" onclick="replaceDish(\'' + c.slot + '\',\'' + jsAttr(c.recipe) + '\')">换一道菜</button>';
+    html += '<button class="btn btn-sm" onclick="removeWeekRecipe(\'' + c.slot + '\',\'' + jsAttr(c.recipe) + '\')">移除</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function moveDishEarlier(slot, recipeName, targetDow) {
+  var meal = slot.split('-')[1];
+  var newSlot = targetDow + '-' + meal;
+  if (newSlot === slot) { showToast('已经是最合适的日期了', 'info'); return; }
+  removeWeekRecipe(slot, recipeName, true);
+  addWeekRecipe(newSlot, recipeName, true);
+  showToast('已把「' + recipeName + '」提前到' + slotLabel(newSlot), 'success');
+}
+
+function replaceDish(slot, recipeName) {
+  removeWeekRecipe(slot, recipeName, true);
+  openRecipePicker(slot);
+}
+
+// ===== 购买清单联动 =====
+function addToShoppingFromRecipe(ing, ref) {
+  var item = shopping.find(function(s) { return s.name === ing; });
+  if (item) {
+    if (!item.recipeRefs) item.recipeRefs = [];
+    if (item.recipeRefs.indexOf(ref) === -1) {
+      item.recipeRefs.push(ref);
+      item.quantity += 1;
+    }
+  } else {
+    shopping.push({ id: generateId(), name: ing, quantity: 1, completed: false, recipeRefs: [ref] });
+  }
+}
+
+function removeRefFromShopping(missingList, ref) {
+  (missingList || []).forEach(function(ing) {
+    var item = shopping.find(function(s) { return s.name === ing; });
+    if (item && item.recipeRefs && item.recipeRefs.indexOf(ref) !== -1) {
+      item.recipeRefs = item.recipeRefs.filter(function(s) { return s !== ref; });
+      item.quantity -= 1;
+      if (item.quantity <= 0) {
+        shopping = shopping.filter(function(s) { return s.id !== item.id; });
+      }
+    }
+  });
+}
+
+// ===== 增删本周菜谱 =====
+function addWeekRecipe(slot, recipeName, silent) {
+  var recipe = getRecipeByName(recipeName);
+  if (!recipe) return;
+  var dishes = getSlotDishes(slot);
+  if (dishes.some(function(d) { return d.recipe === recipeName; })) {
+    showToast(slotLabel(slot) + '已经有「' + recipeName + '」了', 'warning');
+    return;
+  }
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  var missing = recipe.ingredients.filter(function(i) { return fridgeNames.indexOf(i) === -1; });
+  dishes.push({ recipe: recipeName, missing: missing });
+  weekPlan[slot] = dishes;
+  saveData(KEYS.weekPlan, weekPlan);
+  missing.forEach(function(ing) { addToShoppingFromRecipe(ing, refOf(slot, recipeName)); });
+  saveData(KEYS.shopping, shopping);
+  renderAll();
+  if (silent) return;
+  if (missing.length > 0) {
+    showToast(slotLabel(slot) + '已加「' + recipeName + '」，' + missing.length + ' 样缺料进了购买清单', 'success');
+  } else {
+    showToast(slotLabel(slot) + '已加「' + recipeName + '」，食材齐全', 'success');
+  }
+}
+
+function removeWeekRecipe(slot, recipeName, silent) {
+  var dishes = getSlotDishes(slot);
+  var dish = dishes.find(function(d) { return d.recipe === recipeName; });
+  if (!dish) return;
+  removeRefFromShopping(dish.missing, refOf(slot, recipeName));
+  var rest = dishes.filter(function(d) { return d.recipe !== recipeName; });
+  if (rest.length) weekPlan[slot] = rest; else delete weekPlan[slot];
+  saveData(KEYS.weekPlan, weekPlan);
+  saveData(KEYS.shopping, shopping);
+  renderAll();
+  if (!silent) showToast('已移除「' + recipeName + '」', 'info');
+}
+
+function clearWeekRecipe(slot) {
+  getSlotDishes(slot).slice().forEach(function(d) { removeWeekRecipe(slot, d.recipe, true); });
+  renderAll();
+}
+
+// ===== 菜谱选择器弹窗 =====
+function openRecipePicker(slot) {
+  pickerSlot = slot;
+  pickerSearch = '';
+  var box = document.getElementById('picker-search');
+  if (box) box.value = '';
+  var t = document.getElementById('picker-title-text');
+  if (t) t.textContent = '为' + slotLabel(slot) + '选菜';
+  renderPickerList();
+  document.getElementById('recipe-picker-overlay').classList.add('show');
+}
+function closeRecipePicker() {
+  document.getElementById('recipe-picker-overlay').classList.remove('show');
+  pickerSlot = null;
+}
+function onPickerSearch(val) {
+  pickerSearch = (val || '').trim().toLowerCase();
+  renderPickerList();
+}
+function renderPickerList() {
+  var list = document.getElementById('picker-list');
+  if (!list) return;
+  var mealDate = pickerSlot ? slotDate(pickerSlot) : null;
+  var chosen = pickerSlot ? getSlotDishes(pickerSlot).map(function(d) { return d.recipe; }) : [];
+  var matched = getAllRecipes().filter(function(r) { return recipeMatchesQuery(r, pickerSearch); });
+  if (matched.length === 0) {
+    list.innerHTML = '<div class="list-empty">没有匹配的菜谱，可点右上角「新建」</div>';
+    return;
+  }
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  var html = '';
+  matched.forEach(function(r) {
+    var custom = isCustomRecipe(r.name);
+    var already = chosen.indexOf(r.name) !== -1;
+    // 保质期预警：有食材撑不到这一餐
+    var risky = [];
+    if (mealDate && mealDate >= todayStr()) {
+      r.ingredients.forEach(function(ing) {
+        if (fridgeNames.indexOf(ing) === -1) return;
+        var exp = getIngredientExpiry(ing);
+        if (exp && exp < mealDate) risky.push(ing);
+      });
+    }
+    html += '<div class="picker-item' + (custom ? ' picker-item-custom' : '') + '"' +
+            (already ? '' : ' onclick="pickRecipe(\'' + jsAttr(r.name) + '\')"') +
+            (already ? ' style="opacity:.5;cursor:default"' : '') + '>';
+    html += '<div class="picker-item-main">';
+    html += '<span class="picker-item-name">' + escapeHtml(r.name) +
+            (custom ? ' <span class="tag tag-warning" style="font-size:11px;padding:1px 6px">自建</span>' : '') +
+            (already ? ' <span class="tag" style="font-size:11px;padding:1px 6px">已选</span>' : '') + '</span>';
+    html += '<span class="picker-item-cat">' + escapeHtml(r.category || '') + (r.time ? ' · ' + escapeHtml(r.time) : '') + '</span>';
+    html += '</div>';
+    html += '<div class="picker-item-ing">' + r.ingredients.map(function(i) { return escapeHtml(i); }).join('、') + '</div>';
+    if (risky.length) {
+      html += '<div class="picker-item-ing" style="color:var(--danger)">⚠ ' + escapeHtml(risky.join('、')) + ' 会在这餐之前过期</div>';
+    }
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+function pickRecipe(name) {
+  var slot = pickerSlot;
+  closeRecipePicker();
+  if (slot) addWeekRecipe(slot, name);
+}
+
+// ===== 新建菜谱 =====
+function openCreateRecipe() {
+  document.getElementById('recipe-create-err').style.display = 'none';
+  document.getElementById('cr-name').value = '';
+  document.getElementById('cr-ingredients').value = '';
+  document.getElementById('cr-cat').value = '家常';
+  document.getElementById('cr-time').value = '';
+  document.getElementById('cr-steps').value = '';
+  document.getElementById('cr-tips').value = '';
+  document.getElementById('recipe-create-overlay').classList.add('show');
+  setTimeout(function() { document.getElementById('cr-name').focus(); }, 50);
+}
+function closeCreateRecipe() {
+  document.getElementById('recipe-create-overlay').classList.remove('show');
+}
+function submitCreateRecipe() {
+  var rawName = document.getElementById('cr-name').value.trim();
+  var ingRaw = document.getElementById('cr-ingredients').value.trim();
+  var cat = document.getElementById('cr-cat').value;
+  var time = document.getElementById('cr-time').value.trim();
+  var stepsRaw = document.getElementById('cr-steps').value;
+  var tips = document.getElementById('cr-tips').value.trim().replace(/['"\\]/g, '');
+  var errBox = document.getElementById('recipe-create-err');
+  function fail(msg) { errBox.textContent = msg; errBox.style.display = 'block'; }
+
+  // 去掉引号和反斜杠，避免破坏内联事件属性
+  var name = rawName.replace(/['"\\]/g, '').trim();
+  if (!name) return fail('请填写菜谱名称');
+  if (!ingRaw) return fail('请填写至少一种食材');
+  if (getAllRecipes().some(function(r) { return r.name === name; })) return fail('已存在同名菜谱，请换一个名称');
+
+  var ingredients = ingRaw.split(/[,，、\s]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+  var steps = stepsRaw.split(/[\n；;]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+
+  customRecipes.push({
+    name: name,
+    category: cat,
+    time: time,
+    ingredients: ingredients,
+    steps: steps,
+    tips: tips,
+    custom: true
+  });
+  saveData(KEYS.customRecipes, customRecipes);
+  closeCreateRecipe();
+  renderAll();
+  if (document.getElementById('recipe-picker-overlay').classList.contains('show')) renderPickerList();
+  showToast('已加入菜谱库：「' + name + '」', 'success');
+}
+function deleteCustomRecipe(name) {
+  if (!isCustomRecipe(name)) return;
+  customRecipes = customRecipes.filter(function(r) { return r.name !== name; });
+  saveData(KEYS.customRecipes, customRecipes);
+  // 若已排入本周计划，一并移除并回收购物清单
+  Object.keys(weekPlan).forEach(function(slot) {
+    var dishes = getSlotDishes(slot);
+    var dish = dishes.find(function(d) { return d.recipe === name; });
+    if (!dish) return;
+    removeRefFromShopping(dish.missing, refOf(slot, name));
+    var rest = dishes.filter(function(d) { return d.recipe !== name; });
+    if (rest.length) weekPlan[slot] = rest; else delete weekPlan[slot];
+  });
+  saveData(KEYS.weekPlan, weekPlan);
+  saveData(KEYS.shopping, shopping);
+  closeRecipeDetail();
+  renderAll();
+  if (document.getElementById('recipe-picker-overlay').classList.contains('show')) renderPickerList();
+  showToast('已从菜谱库删除：「' + name + '」', 'info');
+}
+
+// ===== 购买清单 =====
+function addShoppingManual() {
+  const name = document.getElementById('shopping-name').value.trim();
+  if (!name) { showToast('请输入购买项', 'warning'); return; }
+  const qty = parseInt(document.getElementById('shopping-qty').value) || 1;
+  const existing = shopping.find(function(s) { return s.name === name; });
+  if (existing) {
+    existing.quantity += qty;
+  } else {
+    shopping.push({ id: generateId(), name: name, quantity: qty, completed: false });
+  }
+  saveData(KEYS.shopping, shopping);
+  document.getElementById('shopping-name').value = '';
+  document.getElementById('shopping-qty').value = '1';
+  renderAll();
+  showToast('已添加：' + name, 'success');
+}
+
+function updateShoppingQty(id, delta) {
+  const item = shopping.find(function(s) { return s.id === id; });
+  if (item) {
+    item.quantity += delta;
+    if (item.quantity < 1) item.quantity = 1;
+    saveData(KEYS.shopping, shopping);
+    renderShopping();
+    renderTodaySection();
+  }
+}
+
+function deleteShoppingItem(id) {
+  shopping = shopping.filter(function(s) { return s.id !== id; });
+  saveData(KEYS.shopping, shopping);
+  renderAll();
+}
+
+function toggleShopping(id) {
+  var item = shopping.find(function(s) { return s.id === id; });
+  if (item) {
+    item.completed = !item.completed;
+    saveData(KEYS.shopping, shopping);
+    renderAll();
+  }
+}
+
+function confirmClearShopping() {
+  if (shopping.length === 0) return;
+  showModal('清空购买清单', '确定要清空全部 ' + shopping.length + ' 项购买清单吗？此操作不可撤销。', function() {
+    shopping = [];
+    saveData(KEYS.shopping, shopping);
+    renderAll();
+    showToast('购买清单已清空', 'success');
+  });
+}
+
+function renderShopping() {
+  const list = document.getElementById('shopping-list');
+  const clearBtn = document.getElementById('clear-shopping-btn');
+  if (shopping.length === 0) {
+    list.innerHTML = '<div class="list-empty">购买清单为空</div>';
+    clearBtn.style.display = 'none';
+    return;
+  }
+  clearBtn.style.display = '';
+  var sorted = shopping.slice().sort(function(a, b) {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    return 0;
+  });
+  var uncompletedCount = shopping.filter(function(s) { return !s.completed; }).length;
+  var html = '';
+  if (uncompletedCount > 0 && uncompletedCount < shopping.length) {
+    html += '<div class="list-section-label">待购买 (' + uncompletedCount + ')</div>';
+  }
+  sorted.forEach(function(s) {
+    var isDone = s.completed;
+    html += '<div class="list-item' + (isDone ? ' completed' : '') + '">';
+    html += '<button class="check-btn' + (isDone ? ' checked' : '') + '" onclick="toggleShopping(\'' + s.id + '\')" title="' + (isDone ? '取消完成' : '标记完成') + '">';
+    if (isDone) {
+      html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    }
+    html += '</button>';
+    html += '<span class="list-text" onclick="toggleShopping(\'' + s.id + '\')">' + escapeHtml(s.name) + '</span>';
+    if (s.recipeRefs && s.recipeRefs.length > 0) {
+      html += '<span class="shopping-from-recipe" title="来自本周食谱">食谱</span>';
+    }
+    html += '<div class="list-qty">';
+    if (!isDone) {
+      html += '<button class="qty-btn" onclick="updateShoppingQty(\'' + s.id + '\', -1)">-</button>';
+    }
+    html += '<span class="qty-num">' + s.quantity + '</span>';
+    if (!isDone) {
+      html += '<button class="qty-btn" onclick="updateShoppingQty(\'' + s.id + '\', 1)">+</button>';
+    }
+    html += '</div>';
+    html += '<button class="list-delete" onclick="deleteShoppingItem(\'' + s.id + '\')" title="删除">';
+    html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
+    html += '</button>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+// ===== 事件待办 =====
+function addTodo() {
+  const text = document.getElementById('todo-text').value.trim();
+  if (!text) { showToast('请输入待办内容', 'warning'); return; }
+  const todoDateVal = document.getElementById('todo-date').value || todayStr();
+  todos.push({
+    id: generateId(),
+    text: text,
+    completed: false,
+    addDate: todayStr(),
+    todoDate: todoDateVal
+  });
+  saveData(KEYS.todos, todos);
+  document.getElementById('todo-text').value = '';
+  renderAll();
+  showToast('已添加待办', 'success');
+}
+
+function toggleTodo(id) {
+  const todo = todos.find(function(t) { return t.id === id; });
+  if (todo) {
+    todo.completed = !todo.completed;
+    saveData(KEYS.todos, todos);
+    renderAll();
+  }
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(function(t) { return t.id !== id; });
+  saveData(KEYS.todos, todos);
+  renderAll();
+}
+
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  // 显示顶部过滤提示
+  var filtered = todos.slice();
+  var isFiltered = false;
+  if (selectedDate !== todayStr()) {
+    isFiltered = true;
+    filtered = filtered.filter(function(t) {
+      var td = t.todoDate || t.addDate;
+      return td === selectedDate;
+    });
+  }
+  if (filtered.length === 0 && todos.length > 0 && isFiltered) {
+    filtered = todos.slice(); // 不匹配时显示全部
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="list-empty">暂无待办事项</div>';
+    return;
+  }
+  var html = '';
+  if (isFiltered) {
+    html += '<div class="list-section-label" style="margin-top:0">' + selectedDate + ' 的待办 (' + filtered.length + ')</div>';
+  }
+  var sorted = filtered.slice().sort(function(a, b) {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    var da = a.todoDate || a.addDate || '';
+    var db = b.todoDate || b.addDate || '';
+    if (!da && !db) return 0;
+    if (!da) return 1;   // 无日期的排到最后
+    if (!db) return -1;
+    return da.localeCompare(db); // 越近的日期越靠前
+  });
+  sorted.forEach(function(t) {
+    var td = t.todoDate || t.addDate || '';
+    html += '<div class="list-item' + (t.completed ? ' completed' : '') + '">';
+    html += '<div style="display:flex;flex-direction:column;flex:1;min-width:0">';
+    html += '<span class="list-text" onclick="toggleTodo(\'' + t.id + '\')">' + escapeHtml(t.text) + '</span>';
+    if (td) {
+      html += '<span style="font-size:11px;color:var(--text-light);margin-top:2px">' + td + '</span>';
+    }
+    html += '</div>';
+    if (!t.completed) {
+      html += '<button class="btn btn-sm btn-icon" onclick="toggleTodo(\'' + t.id + '\')" title="标记完成" style="color:var(--success)">';
+      html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+      html += '</button>';
+    } else {
+      html += '<button class="btn btn-sm btn-icon" onclick="toggleTodo(\'' + t.id + '\')" title="取消完成" style="color:var(--text-secondary)">';
+      html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>';
+      html += '</button>';
+    }
+    html += '<button class="list-delete" onclick="deleteTodo(\'' + t.id + '\')" title="删除">';
+    html += '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>';
+    html += '</button>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+// ===== 今天要处理 =====
+function renderTodaySection() {
+  const list = document.getElementById('today-list');
+  const today = todayStr();
+  let entries = [];
+
+  // 过期/即将过期的物品
+  items.forEach(function(item) {
+    var cat = item.category || (item.isConsumable ? 'periodic' : 'durable');
+    var catInfo = ITEM_CATEGORIES[cat];
+    if (catInfo.hasCycle && item.cycleDays > 0) {
+      const passed = daysBetween(item.resetDate, today);
+      const left = item.cycleDays - passed;
+      if (left <= 0) {
+        entries.push({
+          overdue: true,
+          icon: 'alert',
+          text: item.name + ' 已过期 ' + Math.abs(left) + ' 天',
+          actionLabel: '重置',
+          actionFn: function() { resetItemDate(item.id); }
+        });
+      } else if (left <= 3) {
+        entries.push({
+          overdue: false,
+          icon: 'clock',
+          text: item.name + ' 还有 ' + left + ' 天需更换',
+          actionLabel: '重置',
+          actionFn: function() { resetItemDate(item.id); }
+        });
+      }
+    }
+  });
+
+  // 过期/即将过期的食材
+  fridge.forEach(function(f) {
+    const passed = daysBetween(f.purchaseDate, today);
+    const left = f.shelfLifeDays - passed;
+    if (left <= 0) {
+      entries.push({
+        overdue: true,
+        icon: 'alert',
+        text: f.name + ' 已过期 ' + Math.abs(left) + ' 天',
+        actionLabel: '删除',
+        actionFn: function() { deleteFridgeItem(f.id); }
+      });
+    } else if (left <= 2) {
+      entries.push({
+        overdue: false,
+        icon: 'clock',
+        text: f.name + ' 还剩 ' + left + ' 天保质期',
+        actionLabel: '删除',
+        actionFn: function() { deleteFridgeItem(f.id); }
+      });
+    }
+  });
+
+  // 未完成的待办（仅今天）
+  todos.forEach(function(t) {
+    if (!t.completed && (t.todoDate || t.addDate) === today) {
+      entries.push({
+        overdue: false,
+        icon: 'check',
+        text: t.text,
+        actionLabel: '完成',
+        actionFn: function() { toggleTodo(t.id); }
+      });
+    }
+  });
+
+  // 购买清单提示
+  var uncompletedShopping = shopping.filter(function(s) { return !s.completed; });
+  if (uncompletedShopping.length > 0) {
+    entries.push({
+      overdue: false,
+      icon: 'bag',
+      text: '购买清单还有 ' + uncompletedShopping.length + ' 项待买',
+      actionLabel: null,
+      actionFn: null
+    });
+  }
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="today-empty">今天没有待处理的事项，轻松一下！</div>';
+    return;
+  }
+
+  let html = '';
+  entries.forEach(function(e, idx) {
+    html += '<div class="today-item' + (e.overdue ? ' overdue' : '') + '">';
+    html += '<span class="today-icon">' + getTodayIcon(e.icon) + '</span>';
+    html += '<span class="today-text">' + escapeHtml(e.text) + '</span>';
+    if (e.actionLabel) {
+      html += '<span class="today-action"><button class="btn btn-sm" onclick="todayAction(' + idx + ')">' + e.actionLabel + '</button></span>';
+    }
+    html += '</div>';
+  });
+  list.innerHTML = html;
+  // 存储 action 回调
+  list._actions = entries.map(function(e) { return e.actionFn; });
+}
+
+function todayAction(idx) {
+  const list = document.getElementById('today-list');
+  if (list._actions && list._actions[idx]) {
+    list._actions[idx]();
+  }
+}
+
+function getTodayIcon(name) {
+  const icons = {
+    alert: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+    check: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>',
+    bag: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
+  };
+  return icons[name] || icons.clock;
+}
+
+// ===== 数据备份 =====
+function exportData() {
+  const data = {
+    items: items,
+    fridge: fridge,
+    todos: todos,
+    shopping: shopping,
+    finance: finance,
+    weekPlan: weekPlan,
+    customRecipes: customRecipes,
+    exportDate: new Date().toISOString(),
+    version: 3
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '圆序台备份_' + todayStr() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('备份文件已下载', 'success');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.items) { items = data.items; saveData(KEYS.items, items); }
+      if (data.fridge) { fridge = data.fridge; saveData(KEYS.fridge, fridge); }
+      if (data.todos) { todos = data.todos; saveData(KEYS.todos, todos); }
+      if (data.shopping) { shopping = data.shopping; saveData(KEYS.shopping, shopping); }
+      if (data.finance) { finance = data.finance; saveData(KEYS.finance, finance); }
+      if (data.customRecipes) { customRecipes = data.customRecipes; saveData(KEYS.customRecipes, customRecipes); }
+      if (data.weekPlan) {
+        weekPlan = data.weekPlan;
+        // 兼容旧备份里「一餐一菜」的结构
+        Object.keys(weekPlan).forEach(function(slot) {
+          if (weekPlan[slot] && !Array.isArray(weekPlan[slot])) weekPlan[slot] = [weekPlan[slot]];
+        });
+        saveData(KEYS.weekPlan, weekPlan);
+      }
+      renderAll();
+      showToast('数据导入成功', 'success');
+    } catch (err) {
+      showToast('导入失败：文件格式错误', 'warning');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function confirmClearAll() {
+  showModal('清空全部数据', '此操作将删除所有物品、食材、待办、购买清单、记账数据、本周食谱和自建菜谱，且不可撤销。建议先导出备份。确定继续吗？', function() {
+    items = [];
+    fridge = [];
+    todos = [];
+    shopping = [];
+    finance = [];
+    weekPlan = {};
+    customRecipes = [];
+    localStorage.removeItem(KEYS.items);
+    localStorage.removeItem(KEYS.fridge);
+    localStorage.removeItem(KEYS.todos);
+    localStorage.removeItem(KEYS.shopping);
+    localStorage.removeItem(KEYS.finance);
+    localStorage.removeItem(KEYS.weekPlan);
+    localStorage.removeItem(KEYS.customRecipes);
+    renderAll();
+    showToast('全部数据已清空', 'success');
+  });
+}
+
+// ===== 数据计数和备份提醒 =====
+function updateDataCount() {
+  const total = items.length + fridge.length + todos.length + shopping.length + finance.length;
+  document.getElementById('data-count').textContent = total > 0 ? '共 ' + total + ' 条数据' : '';
+}
+
+function checkBackupReminder() {
+  const total = items.length + fridge.length + todos.length + shopping.length + finance.length;
+  const reminder = document.getElementById('backup-reminder');
+  const text = document.getElementById('backup-reminder-text');
+  if (total >= 30) {
+    text.textContent = '数据已积累 ' + total + ' 条，建议点击上方「导出备份」保存一份';
+    reminder.style.display = 'flex';
+  } else {
+    reminder.style.display = 'none';
+  }
+}
+
+// ===== HTML 转义 =====
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ===== Tab 切换 =====
+function switchTab(tabName) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var page = document.getElementById('page-' + tabName);
+  var btn = document.getElementById('tab-' + tabName);
+  if (page) page.classList.add('active');
+  if (btn) btn.classList.add('active');
+  localStorage.setItem(KEYS.tab, tabName);
+}
+
+function loadTab() {
+  var saved = localStorage.getItem(KEYS.tab);
+  if (saved && document.getElementById('page-' + saved)) {
+    switchTab(saved);
+  }
+}
+
+// ===== 日历 =====
+var MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+var WEEKDAYS = ['一','二','三','四','五','六','日'];
+
+function getTodoDates() {
+  var dates = {};
+  todos.forEach(function(t) {
+    var d = t.todoDate || t.addDate || '';
+    if (d) dates[d] = true;
+  });
+  return dates;
+}
+
+function renderCalendar() {
+  var w = document.getElementById('cal-widget');
+  var isNarrow = window.innerWidth <= 768;
+
+  if (isNarrow && !narrowShowMonth) {
+    // 窄屏：只显示一周
+    renderWeekCalendar(w);
+  } else {
+    // 宽屏 或 窄屏点击了查看整月：显示完整月份
+    renderMonthCalendar(w);
+  }
+}
+
+function renderWeekCalendar(w) {
+  var today = new Date();
+  var dow = today.getDay() || 7; // 1=Mon ... 7=Sun
+  var monday = new Date(today);
+  monday.setDate(today.getDate() - dow + 1);
+  var todoDates = getTodoDates();
+  var todayS = todayStr();
+
+  var html = '';
+  html += '<div class="cal-header">';
+  html += '<button class="cal-nav" onclick="changeWeek(-1)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  var wkStart = new Date(weekStart);
+  html += '<span class="cal-month" style="font-size:14px">' + formatDateShort(wkStart) + ' - ' + formatDateShort(new Date(wkStart.getTime() + 6*86400000)) + '</span>';
+  html += '<button class="cal-nav" onclick="changeWeek(1)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>';
+  html += '</div>';
+  html += '<div class="cal-weekday">';
+  WEEKDAYS.forEach(function(d) { html += '<span>' + d + '</span>'; });
+  html += '</div>';
+  html += '<div class="cal-week-row">';
+
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    var ds = formatDate(d);
+    var cls = 'cal-week-day';
+    if (ds === todayS) cls += ' today';
+    if (ds === selectedDate) cls += ' selected';
+    if (todoDates[ds]) cls += ' has-todo';
+    html += '<div class="' + cls + '" onclick="selectCalendarDate(\'' + ds + '\')">';
+    html += '<span class="cwd-label">' + WEEKDAYS[i] + '</span>';
+    html += '<span class="cwd-num">' + d.getDate() + '</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div class="cal-footer-btns">';
+  html += '<button class="cal-today-btn" onclick="goToToday()">回到今天</button>';
+  html += '<button class="cal-today-btn" onclick="toggleNarrowMonth()" style="color:var(--text-secondary)">查看整月</button>';
+  html += '</div>';
+  w.innerHTML = html;
+}
+
+function renderMonthCalendar(w) {
+  var year = calendarYear;
+  var month = calendarMonth;
+  var firstDay = new Date(year, month, 1);
+  var startDow = firstDay.getDay() || 7;
+  var totalDays = new Date(year, month + 1, 0).getDate();
+  var prevDays = new Date(year, month, 0).getDate();
+  var todoDates = getTodoDates();
+  var today = todayStr();
+
+  var html = '';
+  html += '<div class="cal-header">';
+  html += '<button class="cal-nav" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+  html += '<span class="cal-month">' + year + '年 ' + MONTH_NAMES[month] + '</span>';
+  html += '<button class="cal-nav" onclick="changeMonth(1)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>';
+  html += '</div>';
+  html += '<div class="cal-weekday">';
+  WEEKDAYS.forEach(function(d) { html += '<span>' + d + '</span>'; });
+  html += '</div>';
+  html += '<div class="cal-grid">';
+
+  // 上月尾
+  for (var p = prevDays - startDow + 2; p <= prevDays; p++) {
+    html += '<div class="cal-day other-month">' + p + '</div>';
+  }
+  // 本月
+  for (var d = 1; d <= totalDays; d++) {
+    var ds = formatDate(new Date(year, month, d));
+    var cls = 'cal-day';
+    if (ds === today) cls += ' today';
+    if (ds === selectedDate) cls += ' selected';
+    if (todoDates[ds]) cls += ' has-todo';
+    html += '<div class="' + cls + '" onclick="selectCalendarDate(\'' + ds + '\')">' + d + '</div>';
+  }
+  // 下月头
+  var remaining = 42 - (startDow + totalDays - 1);
+  if (remaining < 7) remaining += 7;
+  for (var n = 1; n <= remaining; n++) {
+    html += '<div class="cal-day other-month">' + n + '</div>';
+  }
+  html += '</div>';
+  html += '<div class="cal-footer-btns">';
+  html += '<button class="cal-today-btn" onclick="goToToday()">回到今天</button>';
+  if (window.innerWidth <= 768) {
+    html += '<button class="cal-today-btn" onclick="toggleNarrowMonth()" style="color:var(--text-secondary)">返回周视图</button>';
+  }
+  html += '</div>';
+  w.innerHTML = html;
+}
+
+function changeMonth(dir) {
+  calendarMonth += dir;
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  renderCalendar();
+}
+
+function toggleNarrowMonth() {
+  narrowShowMonth = !narrowShowMonth;
+  renderCalendar();
+}
+
+function changeWeek(dir) {
+  weekStart.setDate(weekStart.getDate() + dir * 7);
+  renderCalendar();
+}
+
+function selectCalendarDate(ds) {
+  selectedDate = ds;
+  calendarMonth = parseInt(ds.split('-')[1]) - 1;
+  calendarYear = parseInt(ds.split('-')[0]);
+  renderCalendar();
+  switchTab('todo');
+  renderTodos();
+}
+
+function goToToday() {
+  var now = new Date();
+  calendarMonth = now.getMonth();
+  calendarYear = now.getFullYear();
+  var dow = now.getDay() || 7;
+  weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - dow + 1);
+  selectedDate = todayStr();
+  renderCalendar();
+  renderTodos();
+}
+
+// ===== 记账本 =====
+var EXPENSE_CATS = ['餐饮','交通','购物','娱乐','住房','医疗','教育','其他'];
+var INCOME_CATS = ['工资','奖金','兼职','投资','红包','其他'];
+
+function updateFinanceCatSelect() {
+  var sel = document.getElementById('fin-cat');
+  var cats = financeType === 'expense' ? EXPENSE_CATS : INCOME_CATS;
+  sel.innerHTML = '';
+  cats.forEach(function(c) {
+    sel.innerHTML += '<option value="' + c + '">' + c + '</option>';
+  });
+}
+
+function setFinanceType(type) {
+  financeType = type;
+  var expBtn = document.getElementById('type-expense-btn');
+  var incBtn = document.getElementById('type-income-btn');
+  expBtn.className = 'type-btn' + (type === 'expense' ? ' active-expense' : '');
+  incBtn.className = 'type-btn' + (type === 'income' ? ' active-income' : '');
+  updateFinanceCatSelect();
+}
+
+function submitFinance() {
+  var amount = parseFloat(document.getElementById('fin-amount').value);
+  if (isNaN(amount) || amount <= 0) { showToast('请输入有效金额', 'warning'); return; }
+  var rec = {
+    id: editingFinanceId || generateId(),
+    type: financeType,
+    date: document.getElementById('fin-date').value || todayStr(),
+    category: document.getElementById('fin-cat').value,
+    amount: amount,
+    note: document.getElementById('fin-note').value.trim()
+  };
+  if (editingFinanceId) {
+    var idx = finance.findIndex(function(r) { return r.id === editingFinanceId; });
+    if (idx >= 0) finance[idx] = rec;
+  } else {
+    finance.push(rec);
+  }
+  saveData(KEYS.finance, finance);
+  financeMonth = rec.date.slice(0, 7);
+  updateFinanceMonthLabel();
+  clearFinanceForm();
+  renderFinance();
+  updateDataCount();
+  checkBackupReminder();
+  showToast(editingFinanceId ? '已更新' : '已添加', 'success');
+}
+
+function editFinance(id) {
+  var rec = finance.find(function(r) { return r.id === id; });
+  if (!rec) return;
+  editingFinanceId = id;
+  financeType = rec.type;
+  setFinanceType(rec.type);
+  document.getElementById('fin-date').value = rec.date;
+  setTimeout(function() {
+    document.getElementById('fin-cat').value = rec.category;
+  }, 10);
+  document.getElementById('fin-amount').value = rec.amount;
+  document.getElementById('fin-note').value = rec.note;
+  document.getElementById('fin-submit-btn').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> 更新';
+  document.getElementById('fin-cancel-btn').style.display = '';
+  document.getElementById('finance-edit-hint').textContent = '正在编辑';
+}
+
+function cancelEditFinance() {
+  editingFinanceId = null;
+  clearFinanceForm();
+  document.getElementById('fin-submit-btn').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> 添加';
+  document.getElementById('fin-cancel-btn').style.display = 'none';
+  document.getElementById('finance-edit-hint').textContent = '';
+}
+
+function clearFinanceForm() {
+  editingFinanceId = null;
+  document.getElementById('fin-date').value = todayStr();
+  document.getElementById('fin-amount').value = '';
+  document.getElementById('fin-note').value = '';
+  document.getElementById('fin-submit-btn').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> 添加';
+  document.getElementById('fin-cancel-btn').style.display = 'none';
+  document.getElementById('finance-edit-hint').textContent = '';
+}
+
+function deleteFinance(id) {
+  if (editingFinanceId === id) cancelEditFinance();
+  finance = finance.filter(function(r) { return r.id !== id; });
+  saveData(KEYS.finance, finance);
+  renderFinance();
+  updateDataCount();
+  checkBackupReminder();
+}
+
+var PIE_COLORS = ['#E8746C','#6B8AAD','#8BC48A','#F0B86E','#B07DB8','#5CC5C5','#E8A0BF','#A0C4E8'];
+
+// ===== 记账月份过滤 =====
+function curMonthKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function monthLabelOf(ym) {
+  var parts = ym.split('-');
+  return parts[0] + '年' + parseInt(parts[1], 10) + '月';
+}
+function getMonthFinance() {
+  return finance.filter(function(r) { return (r.date || '').slice(0, 7) === financeMonth; });
+}
+function updateFinanceMonthLabel() {
+  var el = document.getElementById('finance-month-label');
+  if (el) {
+    el.textContent = monthLabelOf(financeMonth) + (financeMonth === curMonthKey() ? '（本月）' : '');
+  }
+}
+function changeFinanceMonth(dir) {
+  var parts = financeMonth.split('-');
+  var y = parseInt(parts[0], 10), m = parseInt(parts[1], 10) + dir;
+  if (m < 1) { m = 12; y--; }
+  if (m > 12) { m = 1; y++; }
+  financeMonth = y + '-' + String(m).padStart(2, '0');
+  updateFinanceMonthLabel();
+  renderFinance();
+}
+function goFinanceThisMonth() {
+  financeMonth = curMonthKey();
+  updateFinanceMonthLabel();
+  renderFinance();
+}
+
+function renderPieChart() {
+  var wrap = document.getElementById('pie-chart-top');
+  if (!wrap) return;
+  // 按支出分类汇总
+  var catTotals = {};
+  var totalExpense = 0;
+  getMonthFinance().forEach(function(r) {
+    if (r.type === 'expense') {
+      catTotals[r.category] = (catTotals[r.category] || 0) + r.amount;
+      totalExpense += r.amount;
+    }
+  });
+  var entries = [];
+  for (var cat in catTotals) {
+    entries.push({ cat: cat, amount: catTotals[cat] });
+  }
+  entries.sort(function(a, b) { return b.amount - a.amount; });
+
+  if (entries.length === 0) {
+    wrap.innerHTML = '<div class="list-empty" style="padding:20px 0">暂无支出记录</div>';
+    return;
+  }
+
+  // 窄屏下用更大的饼图和横向布局
+  var isNarrow = window.innerWidth <= 768;
+  var size = isNarrow ? 220 : 180;
+  var cx = size / 2, cy = size / 2, r = size / 2 - 10;
+  var innerR = isNarrow ? 55 : 45;
+
+  var svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg" style="width:' + (isNarrow ? '160px' : 'auto') + ';height:auto">';
+  var startAngle = -Math.PI / 2;
+  entries.forEach(function(e, i) {
+    var fraction = e.amount / totalExpense;
+    var angle = fraction * 2 * Math.PI;
+    var endAngle = startAngle + angle;
+    var largeArc = angle > Math.PI ? 1 : 0;
+    var x1 = cx + r * Math.cos(startAngle);
+    var y1 = cy + r * Math.sin(startAngle);
+    var x2 = cx + r * Math.cos(endAngle);
+    var y2 = cy + r * Math.sin(endAngle);
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    if (fraction >= 0.999) {
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + color + '"/>';
+    } else {
+      svg += '<path d="M' + cx + ',' + cy + ' L' + x1.toFixed(2) + ',' + y1.toFixed(2) + ' A' + r + ',' + r + ' 0 ' + largeArc + ',1 ' + x2.toFixed(2) + ',' + y2.toFixed(2) + ' Z" fill="' + color + '"/>';
+    }
+    startAngle = endAngle;
+  });
+  // 中心白色圆（甜甜圈效果）
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + innerR + '" fill="white"/>';
+  svg += '<text x="' + cx + '" y="' + (cy - 6) + '" text-anchor="middle" font-size="' + (isNarrow ? 14 : 12) + '" fill="#8A9BA8">总支出</text>';
+  svg += '<text x="' + cx + '" y="' + (cy + 14) + '" text-anchor="middle" font-size="' + (isNarrow ? 16 : 14) + '" fill="#E8746C" font-weight="700">¥' + totalExpense.toFixed(0) + '</text>';
+  svg += '</svg>';
+
+  // 图例
+  var legend = '<div class="pie-legend">';
+  entries.forEach(function(e, i) {
+    var pct = ((e.amount / totalExpense) * 100).toFixed(1);
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    legend += '<span class="pie-legend-item"><span class="pie-legend-dot" style="background:' + color + '"></span>' + e.cat + ' ¥' + e.amount.toFixed(0) + ' (' + pct + '%)</span>';
+  });
+  legend += '</div>';
+
+  wrap.innerHTML = svg + legend;
+}
+
+function renderHBarChart() {
+  var wrap = document.getElementById('hbar-chart');
+  if (!wrap) return;
+
+  // 计算收支对比
+  var totalExpense = 0, totalIncome = 0;
+  getMonthFinance().forEach(function(r) {
+    if (r.type === 'expense') totalExpense += r.amount;
+    else totalIncome += r.amount;
+  });
+  var balance = totalIncome - totalExpense;
+
+  // 收支对比卡片（紧凑三栏）
+  var html = '<div class="income-expense-summary">';
+  html += '<div class="ie-box"><div class="ie-label">支出</div><div class="ie-amount expense">¥' + totalExpense.toFixed(2) + '</div></div>';
+  html += '<div class="ie-box"><div class="ie-label">收入</div><div class="ie-amount income">¥' + totalIncome.toFixed(2) + '</div></div>';
+  html += '<div class="ie-box"><div class="ie-label">结余</div><div class="ie-amount balance' + (balance < 0 ? ' negative' : '') + '">' + (balance >= 0 ? '+' : '') + '¥' + balance.toFixed(2) + '</div></div>';
+  html += '</div>';
+
+  // 按支出分类汇总
+  var catTotals = {};
+  getMonthFinance().forEach(function(r) {
+    if (r.type === 'expense') {
+      catTotals[r.category] = (catTotals[r.category] || 0) + r.amount;
+    }
+  });
+  var entries = [];
+  for (var cat in catTotals) {
+    entries.push({ cat: cat, amount: catTotals[cat] });
+  }
+  entries.sort(function(a, b) { return b.amount - a.amount; });
+
+  if (entries.length === 0) {
+    html += '<div class="list-empty" style="padding:10px 0;font-size:13px">暂无支出</div>';
+    wrap.innerHTML = html;
+    return;
+  }
+
+  var maxAmount = 0;
+  entries.forEach(function(e) { if (e.amount > maxAmount) maxAmount = e.amount; });
+
+  // SVG 使用 viewBox 100% 宽度自适应容器
+  var barH = 18, gap = 10, left = 50, right = 60, top = 8;
+  var chartW = 260, chartH = top + entries.length * (barH + gap) - gap + 8;
+
+  var svg = '<svg viewBox="0 0 ' + chartW + ' ' + chartH + '" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+  entries.forEach(function(e, i) {
+    var y = top + i * (barH + gap);
+    var bw = maxAmount > 0 ? (e.amount / maxAmount) * (chartW - left - right) : 0;
+    if (bw < 3 && e.amount > 0) bw = 3;
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    svg += '<text x="' + (left - 6) + '" y="' + (y + barH / 2 + 4) + '" text-anchor="end" font-size="12" fill="#8A9BA8">' + e.cat + '</text>';
+    svg += '<rect x="' + left + '" y="' + y + '" width="' + bw + '" height="' + barH + '" rx="4" fill="' + color + '"/>';
+    svg += '<text x="' + (left + bw + 6) + '" y="' + (y + barH / 2 + 4) + '" font-size="11" fill="#E8746C" font-weight="600">¥' + e.amount.toFixed(0) + '</text>';
+  });
+  svg += '</svg>';
+  html += svg;
+  wrap.innerHTML = html;
+}
+
+function renderFinance() {
+  updateFinanceMonthLabel();
+  var list = document.getElementById('finance-list');
+  var monthRecs = getMonthFinance();
+  if (monthRecs.length === 0) {
+    list.innerHTML = '<div class="list-empty">' + monthLabelOf(financeMonth) + ' 还没有记账记录</div>';
+  } else {
+    var sorted = monthRecs.slice().sort(function(a, b) { return b.date.localeCompare(a.date) || (b.id > a.id ? 1 : -1); });
+    var html = '';
+    sorted.forEach(function(r) {
+      var isExp = r.type === 'expense';
+      html += '<div class="finance-record">';
+      html += '<span class="rec-date">' + r.date + '</span>';
+      html += '<span class="rec-cat ' + r.type + '">' + escapeHtml(r.category) + '</span>';
+      html += '<span class="rec-note">' + (r.note ? escapeHtml(r.note) : '') + '</span>';
+      html += '<span class="record-amount ' + r.type + '">' + (isExp ? '-' : '+') + '¥' + r.amount.toFixed(2) + '</span>';
+      html += '<div class="rec-actions">';
+      html += '<button class="btn btn-sm btn-icon" onclick="editFinance(\'' + r.id + '\')" title="编辑" style="color:var(--primary)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+      html += '<button class="btn btn-sm btn-icon btn-danger" onclick="deleteFinance(\'' + r.id + '\')" title="删除" style="color:var(--warning)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
+  }
+  renderPieChart();
+  renderHBarChart();
+}
+
+// ===== 全量渲染 =====
+function renderAll() {
+  renderCalendar();
+  renderTodaySection();
+  renderItems();
+  renderFridge();
+  renderRecipes();
+  renderWeekPlan();
+  renderLibrary();
+  renderShopping();
+  renderTodos();
+  renderFinance();
+  updateDataCount();
+  checkBackupReminder();
+}
+
+// ===== 示例数据 =====
+function initSampleData() {
+  items = [
+    { id: generateId(), name: '抽纸', category: 'daily', cycleDays: 30, addDate: daysAgo(35), resetDate: daysAgo(35) },
+    { id: generateId(), name: '洗洁精', category: 'periodic', cycleDays: 60, addDate: daysAgo(10), resetDate: daysAgo(10) },
+    { id: generateId(), name: '牙刷', category: 'periodic', cycleDays: 90, addDate: daysAgo(80), resetDate: daysAgo(80) },
+    { id: generateId(), name: '指甲刀', category: 'durable', cycleDays: 0, addDate: daysAgo(30), resetDate: daysAgo(30) },
+    { id: generateId(), name: '创可贴', category: 'emergency', cycleDays: 0, addDate: daysAgo(60), resetDate: daysAgo(60) }
+  ];
+  fridge = [
+    { id: generateId(), name: '鸡蛋', purchaseDate: daysAgo(5), shelfLifeDays: 30, quantity: 6, unit: '个' },
+    { id: generateId(), name: '牛奶', purchaseDate: daysAgo(3), shelfLifeDays: 7, quantity: 2, unit: '瓶' },
+    { id: generateId(), name: '西红柿', purchaseDate: daysAgo(10), shelfLifeDays: 7, quantity: 1, unit: '斤' },
+    { id: generateId(), name: '菠菜', purchaseDate: daysAgo(1), shelfLifeDays: 3, quantity: 1, unit: '斤' }
+  ];
+  todos = [
+    { id: generateId(), text: '交水电费', completed: false, addDate: todayStr(), todoDate: todayStr() },
+    { id: generateId(), text: '预约体检', completed: true, addDate: daysAgo(2), todoDate: daysAgo(2) }
+  ];
+  shopping = [
+    { id: generateId(), name: '黄瓜', quantity: 2, completed: false }
+  ];
+  // 本周食谱示例：一餐多菜 + 保质期冲突演示
+  var fridgeNames = fridge.map(function(f) { return f.name; });
+  function planDish(name) {
+    var rec = RECIPES.find(function(r) { return r.name === name; });
+    var miss = rec ? rec.ingredients.filter(function(ing) { return fridgeNames.indexOf(ing) === -1; }) : [];
+    return { recipe: name, missing: miss };
+  }
+  weekPlan = {
+    '1-dinner': [ planDish('番茄炒蛋') ],
+    '3-lunch': [ planDish('凉拌黄瓜'), planDish('番茄炒蛋') ],
+    '7-lunch': [ planDish('菠菜蛋花汤'), planDish('番茄炒蛋') ]
+  };
+  finance = [
+    { id: generateId(), type: 'expense', date: daysAgo(6), category: '餐饮', amount: 35.5, note: '午餐' },
+    { id: generateId(), type: 'expense', date: daysAgo(5), category: '交通', amount: 12, note: '地铁' },
+    { id: generateId(), type: 'expense', date: daysAgo(3), category: '购物', amount: 89, note: '日用品' },
+    { id: generateId(), type: 'expense', date: daysAgo(1), category: '餐饮', amount: 48, note: '外卖' },
+    { id: generateId(), type: 'income', date: daysAgo(2), category: '工资', amount: 3000, note: '' },
+    { id: generateId(), type: 'expense', date: todayStr(), category: '购物', amount: 26.8, note: '水果' }
+  ];
+  saveData(KEYS.items, items);
+  saveData(KEYS.fridge, fridge);
+  saveData(KEYS.todos, todos);
+  saveData(KEYS.shopping, shopping);
+  saveData(KEYS.finance, finance);
+  saveData(KEYS.weekPlan, weekPlan);
+  localStorage.setItem(KEYS.initialized, '1');
+}
+
+// ===== 初始化 =====
+function init() {
+  // 设置日期默认值
+  document.getElementById('fridge-date').value = todayStr();
+  document.getElementById('todo-date').value = todayStr();
+  document.getElementById('fin-date').value = todayStr();
+  updateFinanceCatSelect();
+
+  // 检查是否首次使用
+  const initialized = localStorage.getItem(KEYS.initialized);
+  if (!initialized) {
+    initSampleData();
+    showToast('已加载示例数据，可随时清空', 'success');
+  } else {
+    items = loadData(KEYS.items, []);
+    fridge = loadData(KEYS.fridge, []);
+    todos = loadData(KEYS.todos, []);
+    shopping = loadData(KEYS.shopping, []);
+    finance = loadData(KEYS.finance, []);
+    weekPlan = loadData(KEYS.weekPlan, {});
+    customRecipes = loadData(KEYS.customRecipes, []);
+    // 旧版「选用食谱」数据迁移到本周食谱（填入今天的早中晚）
+    var oldSel = loadData(PREFIX + 'selectedRecipes', []);
+    if (oldSel.length && Object.keys(weekPlan).length === 0) {
+      var tDow = (new Date().getDay() || 7);
+      var fillSlots = [tDow + '-breakfast', tDow + '-lunch', tDow + '-dinner'];
+      oldSel.slice(0, 3).forEach(function(name, i) {
+        var rec = RECIPES.find(function(r) { return r.name === name; });
+        if (!rec) return;
+        var fridgeNames = fridge.map(function(f) { return f.name; });
+        var miss = rec.ingredients.filter(function(ing) { return fridgeNames.indexOf(ing) === -1; });
+        weekPlan[fillSlots[i]] = [{ recipe: name, missing: miss }];
+        miss.forEach(function(ing) { addToShoppingFromRecipe(ing, refOf(fillSlots[i], name)); });
+      });
+      saveData(KEYS.weekPlan, weekPlan);
+      saveData(KEYS.shopping, shopping);
+    }
+    // 数据迁移 V2：一餐单菜谱 → 一餐多菜谱；购物清单 ref 加上菜名
+    if (!localStorage.getItem(KEYS.planMigrated)) {
+      var planChanged = false;
+      Object.keys(weekPlan).forEach(function(slot) {
+        var v = weekPlan[slot];
+        if (v && !Array.isArray(v)) {
+          weekPlan[slot] = [v];
+          planChanged = true;
+          shopping.forEach(function(s) {
+            if (!s.recipeRefs) return;
+            s.recipeRefs = s.recipeRefs.map(function(ref) {
+              return ref === slot ? refOf(slot, v.recipe) : ref;
+            });
+          });
+        }
+      });
+      if (planChanged) {
+        saveData(KEYS.weekPlan, weekPlan);
+        saveData(KEYS.shopping, shopping);
+      }
+      localStorage.setItem(KEYS.planMigrated, '1');
+    }
+    // 数据迁移：isConsumable → category
+    var needSave = false;
+    items.forEach(function(item) {
+      if (item.category && item.category !== 'consumable') return;
+      if (item.isConsumable === true) {
+        item.category = item.cycleDays > 0 ? 'periodic' : 'daily';
+      } else if (item.isConsumable === false) {
+        item.category = 'durable';
+      } else if (!item.category) {
+        item.category = 'periodic';
+      }
+      delete item.isConsumable;
+      needSave = true;
+    });
+    if (needSave) saveData(KEYS.items, items);
+  }
+
+  renderAll();
+  loadTab();
+}
+
+// 启动
+init();
+
+// 窗口缩放时重新渲染日历（月/周切换）和饼图
+var _resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(function() {
+    if (window.innerWidth > 768) narrowShowMonth = false;
+    renderCalendar();
+    renderPieChart();
+  }, 200);
+});
+</script>
+</body>
+</html>
