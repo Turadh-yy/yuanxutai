@@ -15,5 +15,13 @@
 - 首屏提供「导出 JSON 备份 / 导入恢复」
 - 手机浏览器打开可「添加到主屏幕」当 App 用
 
-## 部署
+## 在线访问
 GitHub Pages: https://Turadh-yy.github.io/yuanxutai/
+
+## 如何更新网页（重要）
+1. 本地修改 **圆序台.html**（这是源文件）
+2. 双击 **一键更新.bat**（或命令行运行 `node update.js`）
+3. 约 1 分钟后访问上面的 Pages 网址即可看到更新
+
+> 原理：update.js 通过 GitHub API 将本地圆序台.html 推送到仓库 index.html，无需安装 gh CLI。
+> Token 从系统凭据管理器读取（不写死在代码中），首次使用需配置：`git credential approve`
