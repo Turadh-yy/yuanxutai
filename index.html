@@ -1617,7 +1617,6 @@ body {
         <input type="password" class="form-input" id="login-password" placeholder="6 位数字密码" autocomplete="current-password" inputmode="numeric" maxlength="6">
       </div>
       <button class="btn btn-primary login-submit" onclick="doLogin()">登 录</button>
-      <p class="login-hint">默认管理员：admin / 123456</p>
     </div>
     <div id="register-form" style="display:none">
       <div class="login-field">
@@ -2153,7 +2152,10 @@ function getSession() { return localStorage.getItem(SESSION_KEY); }
 function setSession(u) { localStorage.setItem(SESSION_KEY, u); }
 function clearSession() { localStorage.removeItem(SESSION_KEY); }
 
-function isAdmin() { return currentUser === 'admin'; }
+function isAdmin() {
+  const u = getUsers().find(function(x) { return x.username === currentUser; });
+  return !!(u && u.role === 'admin');
+}
 
 // 管理员查看他人数据
 function adminViewUser(username) {
@@ -4566,7 +4568,7 @@ function doRegister() {
   const users = getUsers();
   if (users.some(function(u) { return u.username === username; })) { showLoginError('该用户名已被注册，请换一个'); return; }
   // 用户名不可与内置管理员同名
-  if (username === 'admin') { showLoginError('admin 为保留用户名'); return; }
+  if (username === 'Turadh') { showLoginError('Turadh 为保留用户名'); return; }
   users.push({ username: username, password: pw, role: 'user', createdAt: new Date().toISOString() });
   saveUsers(users);
   // 首次注册：把旧版无用户数据迁移给该用户
@@ -5371,10 +5373,33 @@ function init() {
   document.getElementById('fin-date').value = todayStr();
   updateFinanceCatSelect();
 
-  // 首次使用：内置管理员账号 admin / 123456
-  const users = getUsers();
+  // 首次使用：内置管理员账号 Turadh / 123456
+  let users = getUsers();
   if (users.length === 0) {
-    saveUsers([{ username: 'admin', password: '123456', role: 'admin', createdAt: new Date().toISOString() }]);
+    users = [{ username: 'Turadh', password: '123456', role: 'admin', createdAt: new Date().toISOString() }];
+    saveUsers(users);
+  } else {
+    const adm = users.find(function(x) { return x.role === 'admin'; });
+    if (adm) {
+      // 兼容旧版：管理员用户名不是 Turadh 时，改名为 Turadh 并迁移其数据 key
+      if (adm.username !== 'Turadh') {
+        const oldName = adm.username;
+        adm.username = 'Turadh';
+        ['items', 'fridge', 'todos', 'shopping', 'finance', 'weekPlan', 'customRecipes', 'initialized', 'tab', 'planMigratedV2'].forEach(function(k) {
+          const v = localStorage.getItem(PREFIX + oldName + '_' + k);
+          if (v !== null) localStorage.setItem(PREFIX + 'Turadh_' + k, v);
+        });
+        saveUsers(users);
+      }
+    } else {
+      // 无管理员：若已有普通用户 Turadh 则提升为管理员，否则新建
+      const t = users.find(function(x) { return x.username === 'Turadh'; });
+      if (t) { t.role = 'admin'; saveUsers(users); }
+      else {
+        users.push({ username: 'Turadh', password: '123456', role: 'admin', createdAt: new Date().toISOString() });
+        saveUsers(users);
+      }
+    }
   }
 
   // 检查已有会话，自动登录
