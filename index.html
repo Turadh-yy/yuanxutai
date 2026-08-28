@@ -83,6 +83,18 @@ body {
   color: var(--text-secondary);
   margin-right: 4px;
 }
+.header-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--primary-light);
+  padding: 4px 12px;
+  border-radius: 14px;
+  white-space: nowrap;
+}
 
 /* ===== 按钮 ===== */
 .btn {
@@ -1215,6 +1227,106 @@ body {
 .toast.success { background: var(--success); }
 .toast.warning { background: var(--warning); }
 
+/* ===== 登录界面 ===== */
+#login-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+#login-screen.hidden { display: none; }
+.login-box {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 380px;
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.login-logo svg { color: var(--primary); }
+.login-logo h1 { font-size: 26px; font-weight: 700; color: var(--primary-dark); margin-top: 8px; letter-spacing: 2px; }
+.login-logo p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.login-tabs {
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.login-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: var(--card-bg);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.login-tab.active { background: var(--primary); color: #fff; }
+.login-field { margin-bottom: 14px; }
+.login-field .form-input { width: 100%; height: 46px; font-size: 16px; }
+.login-submit { width: 100%; height: 46px; font-size: 16px; margin-top: 6px; }
+.login-hint { text-align: center; font-size: 12px; color: var(--text-light); margin-top: 14px; }
+.login-error {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-radius: var(--radius-xs);
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: none;
+}
+.login-error.show { display: block; }
+
+/* ===== 管理员查看用户数据提示条 ===== */
+.admin-view-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  margin-top: 12px;
+  background: #EEF4FB;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--primary-dark);
+}
+.admin-view-bar svg { flex-shrink: 0; }
+.admin-view-bar span { flex: 1; }
+.admin-view-bar .btn { flex-shrink: 0; }
+
+/* ===== 用户管理弹窗 ===== */
+.admin-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.admin-user-row .au-name { font-weight: 600; font-size: 14px; min-width: 70px; }
+.admin-user-row .au-role { font-size: 11px; padding: 1px 8px; border-radius: 10px; background: var(--primary-light); color: var(--primary-dark); }
+.admin-user-row .au-role.admin { background: var(--warning-bg); color: var(--warning); }
+.admin-user-row .au-pw { font-size: 12px; color: var(--text-secondary); font-family: monospace; }
+.admin-user-row .au-actions { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.admin-user-row .btn { min-height: 30px; }
+
 /* ===== 备份提醒 ===== */
 .backup-reminder {
   background: #FFF8E7;
@@ -1482,6 +1594,56 @@ body {
 </head>
 <body>
 
+<!-- ===== 登录/注册界面 ===== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <h1>圆序台</h1>
+      <p>个人数字工作台</p>
+    </div>
+    <div class="login-tabs">
+      <button class="login-tab active" id="lt-login" onclick="switchLoginTab('login')">登录</button>
+      <button class="login-tab" id="lt-register" onclick="switchLoginTab('register')">注册</button>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div id="login-form">
+      <div class="login-field">
+        <label class="form-label">用户名</label>
+        <input type="text" class="form-input" id="login-username" placeholder="输入用户名" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label class="form-label">密码</label>
+        <input type="password" class="form-input" id="login-password" placeholder="6 位数字密码" autocomplete="current-password" inputmode="numeric" maxlength="6">
+      </div>
+      <button class="btn btn-primary login-submit" onclick="doLogin()">登 录</button>
+      <p class="login-hint">默认管理员：admin / 123456</p>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="login-field">
+        <label class="form-label">用户名</label>
+        <input type="text" class="form-input" id="reg-username" placeholder="2-16 位，不能重复" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label class="form-label">密码（6 位数字）</label>
+        <input type="password" class="form-input" id="reg-password" placeholder="6 位数字" autocomplete="new-password" inputmode="numeric" maxlength="6">
+      </div>
+      <div class="login-field">
+        <label class="form-label">确认密码</label>
+        <input type="password" class="form-input" id="reg-password2" placeholder="再输一次" autocomplete="new-password" inputmode="numeric" maxlength="6">
+      </div>
+      <button class="btn btn-primary login-submit" onclick="doRegister()">注 册</button>
+    </div>
+  </div>
+</div>
+
+<!-- 管理员查看用户数据提示条 -->
+<div class="admin-view-bar" id="admin-view-bar" style="display:none">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+  <span id="admin-view-label">管理员视图</span>
+  <button class="btn btn-sm" onclick="adminBackToSelf()">返回我的数据</button>
+</div>
+
 <!-- ===== 顶部导航 ===== -->
 <header class="header">
   <div class="header-inner">
@@ -1491,6 +1653,15 @@ body {
     </div>
     <div class="header-actions">
       <span class="data-count" id="data-count"></span>
+      <span class="header-user" id="header-user"></span>
+      <button class="btn btn-sm" id="btn-admin-users" onclick="openAdminUsers()" style="display:none">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+        <span class="btn-text">用户管理</span>
+      </button>
+      <button class="btn btn-sm" onclick="doLogout()" title="退出登录">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span class="btn-text">退出</span>
+      </button>
       <button class="btn btn-sm" onclick="exportData()" title="导出备份">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         <span class="btn-text">导出备份</span>
@@ -1499,7 +1670,7 @@ body {
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
         <span class="btn-text">导入恢复</span>
       </button>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <input type="file" id="import-file" accept=".json,.xlsx,.csv" style="display:none" onchange="importData(event)">
       <button class="btn btn-sm btn-danger" onclick="confirmClearAll()" title="清空数据">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
         <span class="btn-text">清空</span>
@@ -1850,7 +2021,8 @@ body {
   <div class="modal-box">
     <div class="modal-title" id="modal-title">确认操作</div>
     <div class="modal-msg" id="modal-msg">确定要执行此操作吗？</div>
-    <div class="modal-actions">
+    <div class="modal-actions" id="modal-custom-actions" style="display:none"></div>
+    <div class="modal-actions" id="modal-default-actions">
       <button class="btn" onclick="closeModal()">取消</button>
       <button class="btn btn-danger" id="modal-confirm-btn">确认</button>
     </div>
@@ -1937,18 +2109,68 @@ body {
 <script>
 // ===== 存储配置 =====
 const PREFIX = 'wb_yuanxutai_';
-const KEYS = {
-  items: PREFIX + 'items',
-  fridge: PREFIX + 'fridge',
-  todos: PREFIX + 'todos',
-  shopping: PREFIX + 'shopping',
-  initialized: PREFIX + 'initialized',
-  tab: PREFIX + 'tab',
-  finance: PREFIX + 'finance',
-  weekPlan: PREFIX + 'weekPlan',
-  customRecipes: PREFIX + 'customRecipes',
-  planMigrated: PREFIX + 'planMigratedV2'
+// 基础 key（不含用户名前缀，实际存储时由 userKey() 拼装）
+const BASE_KEYS = {
+  items: 'items',
+  fridge: 'fridge',
+  todos: 'todos',
+  shopping: 'shopping',
+  initialized: 'initialized',
+  tab: 'tab',
+  finance: 'finance',
+  weekPlan: 'weekPlan',
+  customRecipes: 'customRecipes',
+  planMigrated: 'planMigratedV2'
 };
+const KEYS = {};
+Object.keys(BASE_KEYS).forEach(function(k) { KEYS[k] = PREFIX + BASE_KEYS[k]; });
+
+// ===== 用户系统 =====
+const USER_KEY = PREFIX + 'users';          // 用户列表
+const SESSION_KEY = PREFIX + 'session';     // 当前登录用户
+const LEGACY_MIGRATED = PREFIX + 'legacyMigrated'; // 旧数据是否已迁移
+
+let currentUser = null;          // 当前登录用户名
+let adminViewingUser = null;     // 管理员正在查看的用户（null=看自己）
+
+// 当前生效的数据用户名（管理员查看他人数据时 = adminViewingUser）
+function activeUser() {
+  return adminViewingUser || currentUser;
+}
+
+// 拼装带用户名的存储 key
+function userKey(base) {
+  return PREFIX + activeUser() + '_' + base;
+}
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USER_KEY)) || []; }
+  catch (e) { return []; }
+}
+function saveUsers(list) { localStorage.setItem(USER_KEY, JSON.stringify(list)); }
+
+function getSession() { return localStorage.getItem(SESSION_KEY); }
+function setSession(u) { localStorage.setItem(SESSION_KEY, u); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+function isAdmin() { return currentUser === 'admin'; }
+
+// 管理员查看他人数据
+function adminViewUser(username) {
+  adminViewingUser = username;
+  document.getElementById('admin-view-bar').style.display = 'flex';
+  document.getElementById('admin-view-label').textContent = '管理员视图：正在查看「' + username + '」的数据';
+  loadUserData();
+  renderAll();
+  showToast('已切换到 ' + username + ' 的数据', 'success');
+}
+function adminBackToSelf() {
+  adminViewingUser = null;
+  document.getElementById('admin-view-bar').style.display = 'none';
+  loadUserData();
+  renderAll();
+  showToast('已返回我的数据', 'success');
+}
 
 // ===== 数据状态 =====
 let items = [];
@@ -2662,6 +2884,270 @@ function autoFillItem() {
   }
 }
 
+// ===== XLSX 引擎（纯 JS 零依赖）=====
+// 生成 .xlsx：zip(STORE) + 最小 OOXML
+let CRC_TABLE = null;
+function crc32(buf) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      CRC_TABLE[i] = c;
+    }
+  }
+  let crc = -1;
+  for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ buf[i]) & 0xFF];
+  return (crc ^ -1) >>> 0;
+}
+
+function textBytes(s) {
+  return new TextEncoder().encode(s);
+}
+
+// zip 打包（STORE 无压缩）
+function zipStore(entries) {
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+  entries.forEach(function(e) {
+    const nameB = textBytes(e.name);
+    const dataB = e.data;
+    const crc = crc32(dataB);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true);
+    h.setUint16(4, 20, true);          // version
+    h.setUint16(6, 0, true);           // flags
+    h.setUint16(8, 0, true);           // method: store
+    h.setUint16(10, 0, true);          // mod time
+    h.setUint16(12, 0x21, true);       // mod date
+    h.setUint32(14, crc, true);
+    h.setUint32(18, dataB.length, true);
+    h.setUint32(22, dataB.length, true);
+    h.setUint16(26, nameB.length, true);
+    h.setUint16(28, 0, true);          // extra len
+    chunks.push(new Uint8Array(h.buffer), nameB, dataB);
+    central.push({ nameB: nameB, crc: crc, size: dataB.length, offset: offset });
+    offset += 30 + nameB.length + dataB.length;
+  });
+  // central directory
+  const cdStart = offset;
+  central.forEach(function(c) {
+    const h = new DataView(new ArrayBuffer(46));
+    h.setUint32(0, 0x02014b50, true);
+    h.setUint16(4, 20, true);
+    h.setUint16(6, 20, true);
+    h.setUint16(8, 0, true);
+    h.setUint16(10, 0, true);
+    h.setUint16(12, 0, true);
+    h.setUint16(14, 0x21, true);
+    h.setUint32(16, c.crc, true);
+    h.setUint32(20, c.size, true);
+    h.setUint32(24, c.size, true);
+    h.setUint16(28, c.nameB.length, true);
+    h.setUint16(30, 0, true);          // extra
+    h.setUint16(32, 0, true);          // comment
+    h.setUint16(34, 0, true);          // disk
+    h.setUint16(36, 0, true);          // int attrs
+    h.setUint32(38, 0, true);          // ext attrs
+    h.setUint32(42, c.offset, true);
+    chunks.push(new Uint8Array(h.buffer), c.nameB);
+    offset += 46 + c.nameB.length;
+  });
+  const cdSize = offset - cdStart;
+  // EOCD
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0, 0x06054b50, true);
+  eo.setUint16(4, 0, true);
+  eo.setUint16(6, 0, true);
+  eo.setUint16(8, central.length, true);
+  eo.setUint16(10, central.length, true);
+  eo.setUint32(12, cdSize, true);
+  eo.setUint32(16, cdStart, true);
+  eo.setUint16(20, 0, true);
+  chunks.push(new Uint8Array(eo.buffer));
+  const total = chunks.reduce(function(s, c) { return s + c.length; }, 0);
+  const out = new Uint8Array(total);
+  let p = 0;
+  chunks.forEach(function(c) { out.set(c, p); p += c.length; });
+  return out;
+}
+
+function xmlEsc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+// 构建 sheet XML
+function sheetXml(rows) {
+  let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  xml += '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+  rows.forEach(function(row, ri) {
+    xml += '<row r="' + (ri + 1) + '">';
+    row.forEach(function(cell, ci) {
+      const ref = String.fromCharCode(65 + (ci % 26)) + (ri + 1);
+      if (cell === null || cell === undefined || cell === '') {
+        xml += '<c r="' + ref + '"/>';
+      } else if (typeof cell === 'number') {
+        xml += '<c r="' + ref + '" t="n"><v>' + cell + '</v></c>';
+      } else if (typeof cell === 'boolean') {
+        xml += '<c r="' + ref + '" t="b"><v>' + (cell ? 1 : 0) + '</v></c>';
+      } else {
+        xml += '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(String(cell)) + '</t></is></c>';
+      }
+    });
+    xml += '</row>';
+  });
+  xml += '</sheetData></worksheet>';
+  return xml;
+}
+
+// 构建 xlsx 文件
+function buildXlsx(sheetMap, meta) {
+  const sheetNames = Object.keys(sheetMap).filter(function(n) { return (sheetMap[n] || []).length > 0; });
+  const files = [];
+  const rels = [];
+  const contentOverrides = [];
+  files.push({ name: '[Content_Types].xml', data: textBytes(
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    contentOverrides.join('') +
+    '</Types>'
+  ) });
+  files.push({ name: '_rels/.rels', data: textBytes(
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+    '</Relationships>'
+  ) });
+  const sheetsXml = [];
+  sheetNames.forEach(function(name, i) {
+    const sn = i + 1;
+    const rows = sheetMap[name].map(function(obj) {
+      return Object.keys(obj).map(function(k) { return obj[k]; });
+    });
+    // 首行表头
+    const headers = sheetMap[name].length ? Object.keys(sheetMap[name][0]) : [];
+    const allRows = headers.length ? [headers].concat(rows) : rows;
+    files.push({ name: 'xl/worksheets/sheet' + sn + '.xml', data: textBytes(sheetXml(allRows)) });
+    sheetsXml.push('<sheet name="' + xmlEsc(name) + '" sheetId="' + sn + '" r:id="rId' + sn + '"/>');
+    rels.push('<Relationship Id="rId' + sn + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + sn + '.xml"/>');
+    contentOverrides.push('<Override PartName="/xl/worksheets/sheet' + sn + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');
+  });
+  files.push({ name: 'xl/workbook.xml', data: textBytes(
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+    '<sheets>' + sheetsXml.join('') + '</sheets></workbook>'
+  ) });
+  files.push({ name: 'xl/_rels/workbook.xml.rels', data: textBytes(
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    rels.join('') + '</Relationships>'
+  ) });
+  return zipStore(files);
+}
+
+// 解析 zip：返回 {name -> Uint8Array}
+function parseZip(data) {
+  // 找 EOCD
+  let eocd = -1;
+  for (let i = data.length - 22; i >= 0; i--) {
+    if (data[i] === 0x50 && data[i + 1] === 0x4b && data[i + 2] === 0x05 && data[i + 3] === 0x06) { eocd = i; break; }
+  }
+  if (eocd < 0) return null;
+  const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  const cdCount = dv.getUint16(eocd + 10, true);
+  const cdOffset = dv.getUint32(eocd + 16, true);
+  const out = {};
+  let p = cdOffset;
+  for (let i = 0; i < cdCount; i++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true);
+    const compSize = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extraLen = dv.getUint16(p + 30, true);
+    const commentLen = dv.getUint16(p + 32, true);
+    const localOffset = dv.getUint32(p + 42, true);
+    const name = String.fromCharCode.apply(null, data.subarray(p + 46, p + 46 + nameLen));
+    // 读 local header 定位数据
+    const lv = new DataView(data.buffer, data.byteOffset + localOffset, 30);
+    const lNameLen = lv.getUint16(26, true);
+    const lExtraLen = lv.getUint16(28, true);
+    const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+    let chunk = data.subarray(dataStart, dataStart + compSize);
+    if (method === 8) chunk = { deflate: true, data: chunk }; // DEFLATE，稍后异步解压
+    out[name] = chunk;
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  return out;
+}
+
+async function inflateRaw(data) {
+  try {
+    const ds = new DecompressionStream('deflate-raw');
+    const stream = new Blob([data]).stream().pipeThrough(ds);
+    const buf = await new Response(stream).arrayBuffer();
+    return new Uint8Array(buf);
+  } catch (e) {
+    return null;
+  }
+}
+
+// 解析 xlsx -> { sheets: { 表名: [对象数组] } }
+async function parseXlsx(u8) {
+  const zip = parseZip(u8);
+  if (!zip) return null;
+  // 解压 DEFLATE 条目
+  for (const k of Object.keys(zip)) {
+    if (zip[k] && zip[k].deflate) {
+      const raw = await inflateRaw(zip[k].data);
+      if (raw) zip[k] = raw; else return null;
+    }
+  }
+  const wbXml = zip['xl/workbook.xml'];
+  if (!wbXml) return null;
+  const wbDoc = new DOMParser().parseFromString(new TextDecoder().decode(wbXml), 'application/xml');
+  const sheetNodes = wbDoc.getElementsByTagName('sheet');
+  const sheets = {};
+  for (let i = 0; i < sheetNodes.length; i++) {
+    const name = sheetNodes[i].getAttribute('name');
+    const file = 'xl/worksheets/sheet' + (i + 1) + '.xml';
+    if (!zip[file]) continue;
+    const doc = new DOMParser().parseFromString(new TextDecoder().decode(zip[file]), 'application/xml');
+    const rows = doc.getElementsByTagName('row');
+    const table = [];
+    let headers = null;
+    for (let r = 0; r < rows.length; r++) {
+      const cells = rows[r].getElementsByTagName('c');
+      const rowArr = [];
+      for (let c = 0; c < cells.length; c++) {
+        const el = cells[c];
+        const t = el.getAttribute('t');
+        const vEl = el.getElementsByTagName('v')[0];
+        const isEl = el.getElementsByTagName('is')[0];
+        let val = '';
+        if (t === 'n' && vEl) val = Number(vEl.textContent);
+        else if (t === 'b' && vEl) val = vEl.textContent === '1';
+        else if (isEl) val = isEl.getElementsByTagName('t')[0] ? isEl.getElementsByTagName('t')[0].textContent : '';
+        else if (vEl) val = vEl.textContent;
+        rowArr.push(val);
+      }
+      if (!headers) { headers = rowArr; }
+      else {
+        const obj = {};
+        headers.forEach(function(h, idx) { obj[h] = rowArr[idx]; });
+        table.push(obj);
+      }
+    }
+    sheets[name] = table;
+  }
+  return { sheets: sheets };
+}
+
 function showToast(msg, type) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -2681,6 +3167,10 @@ function showModal(title, msg, onConfirm) {
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('show');
   modalConfirmCallback = null;
+  const customActions = document.getElementById('modal-custom-actions');
+  const defaultActions = document.getElementById('modal-default-actions');
+  if (customActions) { customActions.style.display = 'none'; customActions.innerHTML = ''; }
+  if (defaultActions) defaultActions.style.display = 'flex';
 }
 
 document.getElementById('modal-confirm-btn').addEventListener('click', function() {
@@ -2731,7 +3221,7 @@ function addItem() {
     addDate: today,
     resetDate: today
   });
-  saveData(KEYS.items, items);
+  saveData(userKey(BASE_KEYS.items), items);
   document.getElementById('item-name').value = '';
   renderAll();
   showToast('已添加：' + name, 'success');
@@ -2741,7 +3231,7 @@ function resetItemDate(id) {
   const item = items.find(function(i) { return i.id === id; });
   if (item) {
     item.resetDate = todayStr();
-    saveData(KEYS.items, items);
+    saveData(userKey(BASE_KEYS.items), items);
     renderAll();
     showToast(item.name + ' 倒计时已重置', 'success');
   }
@@ -2749,7 +3239,7 @@ function resetItemDate(id) {
 
 function deleteItem(id) {
   items = items.filter(function(i) { return i.id !== id; });
-  saveData(KEYS.items, items);
+  saveData(userKey(BASE_KEYS.items), items);
   renderAll();
 }
 
@@ -2814,7 +3304,7 @@ function addFridgeItem() {
   if (existing) {
     existing.quantity = (existing.quantity || 1) + qty;
     existing.shelfLifeDays = shelfLife; // 更新保质期
-    saveData(KEYS.fridge, fridge);
+    saveData(userKey(BASE_KEYS.fridge), fridge);
     showToast(name + ' 已合并数量（共 ' + existing.quantity + ' ' + unit + '）', 'success');
   } else {
     fridge.push({
@@ -2825,7 +3315,7 @@ function addFridgeItem() {
       quantity: qty,
       unit: unit
     });
-    saveData(KEYS.fridge, fridge);
+    saveData(userKey(BASE_KEYS.fridge), fridge);
     showToast('已添加：' + name, 'success');
   }
   document.getElementById('fridge-name').value = '';
@@ -2836,7 +3326,7 @@ function addFridgeItem() {
 
 function deleteFridgeItem(id) {
   fridge = fridge.filter(function(f) { return f.id !== id; });
-  saveData(KEYS.fridge, fridge);
+  saveData(userKey(BASE_KEYS.fridge), fridge);
   renderAll();
 }
 
@@ -3466,9 +3956,9 @@ function addWeekRecipe(slot, recipeName, silent) {
   var missing = recipe.ingredients.filter(function(i) { return fridgeNames.indexOf(i) === -1; });
   dishes.push({ recipe: recipeName, missing: missing });
   weekPlan[slot] = dishes;
-  saveData(KEYS.weekPlan, weekPlan);
+  saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
   missing.forEach(function(ing) { addToShoppingFromRecipe(ing, refOf(slot, recipeName)); });
-  saveData(KEYS.shopping, shopping);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
   renderAll();
   if (silent) return;
   if (missing.length > 0) {
@@ -3485,8 +3975,8 @@ function removeWeekRecipe(slot, recipeName, silent) {
   removeRefFromShopping(dish.missing, refOf(slot, recipeName));
   var rest = dishes.filter(function(d) { return d.recipe !== recipeName; });
   if (rest.length) weekPlan[slot] = rest; else delete weekPlan[slot];
-  saveData(KEYS.weekPlan, weekPlan);
-  saveData(KEYS.shopping, shopping);
+  saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
   renderAll();
   if (!silent) showToast('已移除「' + recipeName + '」', 'info');
 }
@@ -3605,7 +4095,7 @@ function submitCreateRecipe() {
     tips: tips,
     custom: true
   });
-  saveData(KEYS.customRecipes, customRecipes);
+  saveData(userKey(BASE_KEYS.customRecipes), customRecipes);
   closeCreateRecipe();
   renderAll();
   if (document.getElementById('recipe-picker-overlay').classList.contains('show')) renderPickerList();
@@ -3614,7 +4104,7 @@ function submitCreateRecipe() {
 function deleteCustomRecipe(name) {
   if (!isCustomRecipe(name)) return;
   customRecipes = customRecipes.filter(function(r) { return r.name !== name; });
-  saveData(KEYS.customRecipes, customRecipes);
+  saveData(userKey(BASE_KEYS.customRecipes), customRecipes);
   // 若已排入本周计划，一并移除并回收购物清单
   Object.keys(weekPlan).forEach(function(slot) {
     var dishes = getSlotDishes(slot);
@@ -3624,8 +4114,8 @@ function deleteCustomRecipe(name) {
     var rest = dishes.filter(function(d) { return d.recipe !== name; });
     if (rest.length) weekPlan[slot] = rest; else delete weekPlan[slot];
   });
-  saveData(KEYS.weekPlan, weekPlan);
-  saveData(KEYS.shopping, shopping);
+  saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
   closeRecipeDetail();
   renderAll();
   if (document.getElementById('recipe-picker-overlay').classList.contains('show')) renderPickerList();
@@ -3643,7 +4133,7 @@ function addShoppingManual() {
   } else {
     shopping.push({ id: generateId(), name: name, quantity: qty, completed: false });
   }
-  saveData(KEYS.shopping, shopping);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
   document.getElementById('shopping-name').value = '';
   document.getElementById('shopping-qty').value = '1';
   renderAll();
@@ -3655,7 +4145,7 @@ function updateShoppingQty(id, delta) {
   if (item) {
     item.quantity += delta;
     if (item.quantity < 1) item.quantity = 1;
-    saveData(KEYS.shopping, shopping);
+    saveData(userKey(BASE_KEYS.shopping), shopping);
     renderShopping();
     renderTodaySection();
   }
@@ -3663,7 +4153,7 @@ function updateShoppingQty(id, delta) {
 
 function deleteShoppingItem(id) {
   shopping = shopping.filter(function(s) { return s.id !== id; });
-  saveData(KEYS.shopping, shopping);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
   renderAll();
 }
 
@@ -3671,7 +4161,7 @@ function toggleShopping(id) {
   var item = shopping.find(function(s) { return s.id === id; });
   if (item) {
     item.completed = !item.completed;
-    saveData(KEYS.shopping, shopping);
+    saveData(userKey(BASE_KEYS.shopping), shopping);
     renderAll();
   }
 }
@@ -3680,7 +4170,7 @@ function confirmClearShopping() {
   if (shopping.length === 0) return;
   showModal('清空购买清单', '确定要清空全部 ' + shopping.length + ' 项购买清单吗？此操作不可撤销。', function() {
     shopping = [];
-    saveData(KEYS.shopping, shopping);
+    saveData(userKey(BASE_KEYS.shopping), shopping);
     renderAll();
     showToast('购买清单已清空', 'success');
   });
@@ -3745,7 +4235,7 @@ function addTodo() {
     addDate: todayStr(),
     todoDate: todoDateVal
   });
-  saveData(KEYS.todos, todos);
+  saveData(userKey(BASE_KEYS.todos), todos);
   document.getElementById('todo-text').value = '';
   renderAll();
   showToast('已添加待办', 'success');
@@ -3755,14 +4245,14 @@ function toggleTodo(id) {
   const todo = todos.find(function(t) { return t.id === id; });
   if (todo) {
     todo.completed = !todo.completed;
-    saveData(KEYS.todos, todos);
+    saveData(userKey(BASE_KEYS.todos), todos);
     renderAll();
   }
 }
 
 function deleteTodo(id) {
   todos = todos.filter(function(t) { return t.id !== id; });
-  saveData(KEYS.todos, todos);
+  saveData(userKey(BASE_KEYS.todos), todos);
   renderAll();
 }
 
@@ -3943,64 +4433,349 @@ function getTodayIcon(name) {
   return icons[name] || icons.clock;
 }
 
-// ===== 数据备份 =====
+// ===== 数据备份（Excel 格式）=====
+// 导出为 .xlsx（真正 Excel 文件，多 sheet）
 function exportData() {
-  const data = {
-    items: items,
-    fridge: fridge,
-    todos: todos,
-    shopping: shopping,
-    finance: finance,
-    weekPlan: weekPlan,
-    customRecipes: customRecipes,
-    exportDate: new Date().toISOString(),
-    version: 3
+  // weekPlan 是对象（slot → 菜谱数组），转为表格行
+  const weekPlanRows = Object.keys(weekPlan).map(function(slot) {
+    return { slot: slot, dishes: JSON.stringify(weekPlan[slot]) };
+  });
+  const rows = {
+    '物品管理': items,
+    '冰箱管理': fridge,
+    '事件待办': todos,
+    '购买清单': shopping,
+    '记账本': finance,
+    '本周食谱': weekPlanRows,
+    '自定义菜谱': customRecipes
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const wb = buildXlsx(rows, { user: activeUser(), date: new Date().toISOString() });
+  const blob = new Blob([wb], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = '圆序台备份_' + todayStr() + '.json';
+  a.download = '圆序台_' + activeUser() + '_' + todayStr() + '.xlsx';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('备份文件已下载', 'success');
+  showToast('Excel 备份已下载', 'success');
 }
 
+// 导入：优先解析 .xlsx（二进制），其次兼容旧 .json
 function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.items) { items = data.items; saveData(KEYS.items, items); }
-      if (data.fridge) { fridge = data.fridge; saveData(KEYS.fridge, fridge); }
-      if (data.todos) { todos = data.todos; saveData(KEYS.todos, todos); }
-      if (data.shopping) { shopping = data.shopping; saveData(KEYS.shopping, shopping); }
-      if (data.finance) { finance = data.finance; saveData(KEYS.finance, finance); }
-      if (data.customRecipes) { customRecipes = data.customRecipes; saveData(KEYS.customRecipes, customRecipes); }
-      if (data.weekPlan) {
-        weekPlan = data.weekPlan;
-        // 兼容旧备份里「一餐一菜」的结构
-        Object.keys(weekPlan).forEach(function(slot) {
-          if (weekPlan[slot] && !Array.isArray(weekPlan[slot])) weekPlan[slot] = [weekPlan[slot]];
+  const name = (file.name || '').toLowerCase();
+  if (name.endsWith('.xlsx')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb = parseXlsx(new Uint8Array(e.target.result));
+        if (!wb || !wb.sheets) { showToast('导入失败：Excel 文件格式错误', 'warning'); return; }
+        items = wb.sheets['物品管理'] || [];
+        fridge = wb.sheets['冰箱管理'] || [];
+        todos = wb.sheets['事件待办'] || [];
+        shopping = wb.sheets['购买清单'] || [];
+        finance = wb.sheets['记账本'] || [];
+        // 本周食谱：dishes 列为 JSON 字符串 → 还原为对象
+        const wpRows = wb.sheets['本周食谱'] || [];
+        weekPlan = {};
+        wpRows.forEach(function(r) {
+          if (!r.slot) return;
+          try { weekPlan[r.slot] = JSON.parse(r.dishes || '[]'); }
+          catch (e) { weekPlan[r.slot] = []; }
         });
-        saveData(KEYS.weekPlan, weekPlan);
+        customRecipes = wb.sheets['自定义菜谱'] || [];
+        saveUserData();
+        renderAll();
+        showToast('Excel 数据导入成功', 'success');
+      } catch (err) {
+        showToast('导入失败：文件无法解析', 'warning');
       }
-      renderAll();
-      showToast('数据导入成功', 'success');
-    } catch (err) {
-      showToast('导入失败：文件格式错误', 'warning');
-    }
-  };
-  reader.readAsText(file);
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    // 兼容旧版 JSON 备份
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.items) { items = data.items; }
+        if (data.fridge) { fridge = data.fridge; }
+        if (data.todos) { todos = data.todos; }
+        if (data.shopping) { shopping = data.shopping; }
+        if (data.finance) { finance = data.finance; }
+        if (data.customRecipes) { customRecipes = data.customRecipes; }
+        if (data.weekPlan) { weekPlan = normalizeWeekPlan(data.weekPlan); }
+        saveUserData();
+        renderAll();
+        showToast('JSON 数据导入成功（已兼容旧版）', 'success');
+      } catch (err) {
+        showToast('导入失败：文件格式错误', 'warning');
+      }
+    };
+    reader.readAsText(file);
+  }
   event.target.value = '';
 }
 
+// 周计划格式归一化（兼容一餐一菜/一餐多菜）
+function normalizeWeekPlan(p) {
+  if (!p || typeof p !== 'object') return {};
+  const out = {};
+  Object.keys(p).forEach(function(slot) {
+    const v = p[slot];
+    if (Array.isArray(v)) { out[slot] = v; }
+    else if (v && typeof v === 'object') { out[slot] = [v]; }
+    else { out[slot] = [{ recipe: String(v), missing: [] }]; }
+  });
+  return out;
+}
+
+// ===== 用户管理 =====
+function switchLoginTab(tab) {
+  document.getElementById('lt-login').classList.toggle('active', tab === 'login');
+  document.getElementById('lt-register').classList.toggle('active', tab === 'register');
+  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  hideLoginError();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideLoginError() {
+  const el = document.getElementById('login-error');
+  if (el) el.classList.remove('show');
+}
+
+// 注册：用户名唯一 + 6 位数字密码
+function doRegister() {
+  hideLoginError();
+  const username = document.getElementById('reg-username').value.trim();
+  const pw = document.getElementById('reg-password').value;
+  const pw2 = document.getElementById('reg-password2').value;
+  if (username.length < 2 || username.length > 16) { showLoginError('用户名需 2-16 个字符'); return; }
+  if (!/^[A-Za-z0-9_\u4e00-\u9fa5]+$/.test(username)) { showLoginError('用户名只能含中文、字母、数字、下划线'); return; }
+  if (!/^\d{6}$/.test(pw)) { showLoginError('密码必须是 6 位数字'); return; }
+  if (pw !== pw2) { showLoginError('两次密码不一致'); return; }
+  const users = getUsers();
+  if (users.some(function(u) { return u.username === username; })) { showLoginError('该用户名已被注册，请换一个'); return; }
+  // 用户名不可与内置管理员同名
+  if (username === 'admin') { showLoginError('admin 为保留用户名'); return; }
+  users.push({ username: username, password: pw, role: 'user', createdAt: new Date().toISOString() });
+  saveUsers(users);
+  // 首次注册：把旧版无用户数据迁移给该用户
+  migrateLegacyDataIfNeeded(username);
+  doLoginAs(username);
+}
+
+// 登录
+function doLogin() {
+  hideLoginError();
+  const username = document.getElementById('login-username').value.trim();
+  const pw = document.getElementById('login-password').value;
+  const users = getUsers();
+  const u = users.find(function(x) { return x.username === username; });
+  if (!u || u.password !== pw) { showLoginError('用户名或密码错误'); return; }
+  doLoginAs(username);
+}
+
+// 内部：以某用户身份进入
+function doLoginAs(username) {
+  const users = getUsers();
+  const u = users.find(function(x) { return x.username === username; });
+  if (!u) return;
+  currentUser = username;
+  adminViewingUser = null;
+  setSession(username);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('admin-view-bar').style.display = 'none';
+  document.getElementById('header-user').innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ' + escapeHtml(username) + (u.role === 'admin' ? '（管理员）' : '');
+  document.getElementById('btn-admin-users').style.display = u.role === 'admin' ? 'inline-flex' : 'none';
+  // 首次使用该用户：加载示例数据；否则加载用户数据并做旧版迁移
+  if (!localStorage.getItem(userKey(BASE_KEYS.initialized))) {
+    initSampleData();
+    showToast('已加载示例数据，可随时清空', 'success');
+  } else {
+    loadUserData();
+    migrateUserData();
+  }
+  renderAll();
+  loadTab();
+  showToast('欢迎回来，' + username, 'success');
+}
+
+// 当前用户数据迁移（旧版结构兼容）
+function migrateUserData() {
+  // 旧版「选用食谱」数据迁移到本周食谱（填入今天的早中晚）
+  var oldSel = loadData(PREFIX + 'selectedRecipes', []);
+  if (oldSel.length && Object.keys(weekPlan).length === 0) {
+    var tDow = (new Date().getDay() || 7);
+    var fillSlots = [tDow + '-breakfast', tDow + '-lunch', tDow + '-dinner'];
+    oldSel.slice(0, 3).forEach(function(name, i) {
+      var rec = RECIPES.find(function(r) { return r.name === name; });
+      if (!rec) return;
+      var fridgeNames = fridge.map(function(f) { return f.name; });
+      var miss = rec.ingredients.filter(function(ing) { return fridgeNames.indexOf(ing) === -1; });
+      weekPlan[fillSlots[i]] = [{ recipe: name, missing: miss }];
+      miss.forEach(function(ing) { addToShoppingFromRecipe(ing, refOf(fillSlots[i], name)); });
+    });
+    saveUserData();
+  }
+  // 数据迁移 V2：一餐单菜谱 → 一餐多菜谱
+  if (!localStorage.getItem(userKey(BASE_KEYS.planMigrated))) {
+    var planChanged = false;
+    Object.keys(weekPlan).forEach(function(slot) {
+      var v = weekPlan[slot];
+      if (v && !Array.isArray(v)) {
+        weekPlan[slot] = [v];
+        planChanged = true;
+        shopping.forEach(function(s) {
+          if (!s.recipeRefs) return;
+          s.recipeRefs = s.recipeRefs.map(function(ref) {
+            return ref === slot ? refOf(slot, v.recipe) : ref;
+          });
+        });
+      }
+    });
+    if (planChanged) saveUserData();
+    localStorage.setItem(userKey(BASE_KEYS.planMigrated), '1');
+  }
+  // 数据迁移：isConsumable → category
+  var needSave = false;
+  items.forEach(function(item) {
+    if (item.category && item.category !== 'consumable') return;
+    if (item.isConsumable === true) {
+      item.category = item.cycleDays > 0 ? 'periodic' : 'daily';
+    } else if (item.isConsumable === false) {
+      item.category = 'durable';
+    } else if (!item.category) {
+      item.category = 'periodic';
+    }
+    delete item.isConsumable;
+    needSave = true;
+  });
+  if (needSave) saveUserData();
+}
+
+function doLogout() {
+  currentUser = null;
+  adminViewingUser = null;
+  clearSession();
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('admin-view-bar').style.display = 'none';
+  document.getElementById('header-user').innerHTML = '';
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('reg-username').value = '';
+  document.getElementById('reg-password').value = '';
+  document.getElementById('reg-password2').value = '';
+  switchLoginTab('login');
+}
+
+// 加载当前生效用户的数据
+function loadUserData() {
+  items = loadData(userKey(BASE_KEYS.items), []);
+  fridge = loadData(userKey(BASE_KEYS.fridge), []);
+  todos = loadData(userKey(BASE_KEYS.todos), []);
+  shopping = loadData(userKey(BASE_KEYS.shopping), []);
+  finance = loadData(userKey(BASE_KEYS.finance), []);
+  weekPlan = loadData(userKey(BASE_KEYS.weekPlan), {});
+  customRecipes = loadData(userKey(BASE_KEYS.customRecipes), []);
+}
+
+// 保存当前生效用户的数据
+function saveUserData() {
+  saveData(userKey(BASE_KEYS.items), items);
+  saveData(userKey(BASE_KEYS.fridge), fridge);
+  saveData(userKey(BASE_KEYS.todos), todos);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
+  saveData(userKey(BASE_KEYS.finance), finance);
+  saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
+  saveData(userKey(BASE_KEYS.customRecipes), customRecipes);
+  localStorage.setItem(userKey(BASE_KEYS.initialized), '1');
+}
+
+// 管理员：打开用户管理弹窗
+function openAdminUsers() {
+  if (!isAdmin()) return;
+  const users = getUsers();
+  let html = '';
+  users.forEach(function(u) {
+    const count = countUserData(u.username);
+    html += '<div class="admin-user-row">';
+    html += '<span class="au-name">' + escapeHtml(u.username) + '</span>';
+    html += '<span class="au-role' + (u.role === 'admin' ? ' admin' : '') + '">' + (u.role === 'admin' ? '管理员' : '普通用户') + '</span>';
+    html += '<span class="au-pw">密码：<span id="pw-' + jsAttr(u.username) + '">••••••</span></span>';
+    html += '<span class="au-pw">' + count + ' 条数据</span>';
+    html += '<div class="au-actions">';
+    html += '<button class="btn btn-sm" onclick="toggleShowPw(\'' + jsAttr(u.username) + '\')">看密码</button>';
+    if (u.role !== 'admin') {
+      html += '<button class="btn btn-sm" onclick="adminViewUser(\'' + jsAttr(u.username) + '\');closeModal()">查看数据</button>';
+      html += '<button class="btn btn-sm btn-danger" onclick="adminDeleteUser(\'' + jsAttr(u.username) + '\')">删除</button>';
+    }
+    html += '</div></div>';
+  });
+  showModalHtml('用户管理（管理员）', html, '<button class="btn" onclick="closeModal()">关闭</button>');
+}
+
+function toggleShowPw(username) {
+  const users = getUsers();
+  const u = users.find(function(x) { return x.username === username; });
+  const el = document.getElementById('pw-' + jsAttr(username));
+  if (!u || !el) return;
+  if (el.textContent === '••••••') { el.textContent = u.password; }
+  else { el.textContent = '••••••'; }
+}
+
+function countUserData(username) {
+  let n = 0;
+  [BASE_KEYS.items, BASE_KEYS.fridge, BASE_KEYS.todos, BASE_KEYS.shopping, BASE_KEYS.finance].forEach(function(k) {
+    try {
+      const arr = JSON.parse(localStorage.getItem(PREFIX + username + '_' + k)) || [];
+      n += arr.length;
+    } catch (e) {}
+  });
+  return n;
+}
+
+function adminDeleteUser(username) {
+  const users = getUsers();
+  const target = users.find(function(x) { return x.username === username; });
+  if (!target) return;
+  if (target.role === 'admin') { showToast('不能删除管理员账号', 'warning'); return; }
+  showModal('删除用户', '确定删除用户「' + username + '」及其全部数据吗？此操作不可撤销。', function() {
+    saveUsers(users.filter(function(x) { return x.username !== username; }));
+    [BASE_KEYS.items, BASE_KEYS.fridge, BASE_KEYS.todos, BASE_KEYS.shopping, BASE_KEYS.finance, BASE_KEYS.weekPlan, BASE_KEYS.customRecipes, BASE_KEYS.initialized, BASE_KEYS.tab, BASE_KEYS.planMigrated].forEach(function(k) {
+      localStorage.removeItem(PREFIX + username + '_' + k);
+    });
+    if (adminViewingUser === username) adminBackToSelf();
+    openAdminUsers();
+    showToast('用户已删除', 'success');
+  });
+}
+
+function showModalHtml(title, bodyHtml, actionsHtml) {
+  document.getElementById('modal-title').textContent = title;
+  const msg = document.getElementById('modal-msg');
+  msg.innerHTML = bodyHtml;
+  msg.style.maxHeight = '60vh';
+  msg.style.overflowY = 'auto';
+  const customActions = document.getElementById('modal-custom-actions');
+  customActions.innerHTML = actionsHtml;
+  customActions.style.display = 'flex';
+  document.getElementById('modal-default-actions').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('show');
+  modalConfirmCallback = null;
+}
+
 function confirmClearAll() {
-  showModal('清空全部数据', '此操作将删除所有物品、食材、待办、购买清单、记账数据、本周食谱和自建菜谱，且不可撤销。建议先导出备份。确定继续吗？', function() {
+  showModal('清空当前用户数据', '此操作将删除当前用户（' + activeUser() + '）的所有数据，且不可撤销。建议先导出 Excel 备份。确定继续吗？', function() {
     items = [];
     fridge = [];
     todos = [];
@@ -4008,15 +4783,11 @@ function confirmClearAll() {
     finance = [];
     weekPlan = {};
     customRecipes = [];
-    localStorage.removeItem(KEYS.items);
-    localStorage.removeItem(KEYS.fridge);
-    localStorage.removeItem(KEYS.todos);
-    localStorage.removeItem(KEYS.shopping);
-    localStorage.removeItem(KEYS.finance);
-    localStorage.removeItem(KEYS.weekPlan);
-    localStorage.removeItem(KEYS.customRecipes);
+    [BASE_KEYS.items, BASE_KEYS.fridge, BASE_KEYS.todos, BASE_KEYS.shopping, BASE_KEYS.finance, BASE_KEYS.weekPlan, BASE_KEYS.customRecipes].forEach(function(k) {
+      localStorage.removeItem(userKey(k));
+    });
     renderAll();
-    showToast('全部数据已清空', 'success');
+    showToast('数据已清空', 'success');
   });
 }
 
@@ -4057,11 +4828,12 @@ function switchTab(tabName) {
   var btn = document.getElementById('tab-' + tabName);
   if (page) page.classList.add('active');
   if (btn) btn.classList.add('active');
-  localStorage.setItem(KEYS.tab, tabName);
+  if (currentUser) localStorage.setItem(userKey(BASE_KEYS.tab), tabName);
 }
 
 function loadTab() {
-  var saved = localStorage.getItem(KEYS.tab);
+  if (!currentUser) return;
+  var saved = localStorage.getItem(userKey(BASE_KEYS.tab));
   if (saved && document.getElementById('page-' + saved)) {
     switchTab(saved);
   }
@@ -4261,7 +5033,7 @@ function submitFinance() {
   } else {
     finance.push(rec);
   }
-  saveData(KEYS.finance, finance);
+  saveData(userKey(BASE_KEYS.finance), finance);
   financeMonth = rec.date.slice(0, 7);
   updateFinanceMonthLabel();
   clearFinanceForm();
@@ -4309,7 +5081,7 @@ function clearFinanceForm() {
 function deleteFinance(id) {
   if (editingFinanceId === id) cancelEditFinance();
   finance = finance.filter(function(r) { return r.id !== id; });
-  saveData(KEYS.finance, finance);
+  saveData(userKey(BASE_KEYS.finance), finance);
   renderFinance();
   updateDataCount();
   checkBackupReminder();
@@ -4562,13 +5334,33 @@ function initSampleData() {
     { id: generateId(), type: 'income', date: daysAgo(2), category: '工资', amount: 3000, note: '' },
     { id: generateId(), type: 'expense', date: todayStr(), category: '购物', amount: 26.8, note: '水果' }
   ];
-  saveData(KEYS.items, items);
-  saveData(KEYS.fridge, fridge);
-  saveData(KEYS.todos, todos);
-  saveData(KEYS.shopping, shopping);
-  saveData(KEYS.finance, finance);
-  saveData(KEYS.weekPlan, weekPlan);
-  localStorage.setItem(KEYS.initialized, '1');
+  saveData(userKey(BASE_KEYS.items), items);
+  saveData(userKey(BASE_KEYS.fridge), fridge);
+  saveData(userKey(BASE_KEYS.todos), todos);
+  saveData(userKey(BASE_KEYS.shopping), shopping);
+  saveData(userKey(BASE_KEYS.finance), finance);
+  saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
+  localStorage.setItem(userKey(BASE_KEYS.initialized), '1');
+}
+
+// 旧版无用户数据迁移：注册第一个用户时，把旧 key（wb_yuanxutai_xxx）的数据迁到新用户
+function migrateLegacyDataIfNeeded(newUsername) {
+  if (localStorage.getItem(LEGACY_MIGRATED)) return;
+  const legacyKeys = ['items', 'fridge', 'todos', 'shopping', 'finance', 'weekPlan', 'customRecipes'];
+  let hasLegacy = false;
+  legacyKeys.forEach(function(k) {
+    if (localStorage.getItem(PREFIX + k) !== null) hasLegacy = true;
+  });
+  if (!hasLegacy) { localStorage.setItem(LEGACY_MIGRATED, '1'); return; }
+  // 迁移到新用户
+  legacyKeys.forEach(function(k) {
+    const v = localStorage.getItem(PREFIX + k);
+    if (v !== null) localStorage.setItem(PREFIX + newUsername + '_' + k, v);
+  });
+  // 标记该用户已初始化，避免被示例数据覆盖
+  localStorage.setItem(PREFIX + newUsername + '_initialized', '1');
+  // 旧 key 标记为已迁移，保留原值供其它用途
+  localStorage.setItem(LEGACY_MIGRATED, '1');
 }
 
 // ===== 初始化 =====
@@ -4579,76 +5371,21 @@ function init() {
   document.getElementById('fin-date').value = todayStr();
   updateFinanceCatSelect();
 
-  // 检查是否首次使用
-  const initialized = localStorage.getItem(KEYS.initialized);
-  if (!initialized) {
-    initSampleData();
-    showToast('已加载示例数据，可随时清空', 'success');
-  } else {
-    items = loadData(KEYS.items, []);
-    fridge = loadData(KEYS.fridge, []);
-    todos = loadData(KEYS.todos, []);
-    shopping = loadData(KEYS.shopping, []);
-    finance = loadData(KEYS.finance, []);
-    weekPlan = loadData(KEYS.weekPlan, {});
-    customRecipes = loadData(KEYS.customRecipes, []);
-    // 旧版「选用食谱」数据迁移到本周食谱（填入今天的早中晚）
-    var oldSel = loadData(PREFIX + 'selectedRecipes', []);
-    if (oldSel.length && Object.keys(weekPlan).length === 0) {
-      var tDow = (new Date().getDay() || 7);
-      var fillSlots = [tDow + '-breakfast', tDow + '-lunch', tDow + '-dinner'];
-      oldSel.slice(0, 3).forEach(function(name, i) {
-        var rec = RECIPES.find(function(r) { return r.name === name; });
-        if (!rec) return;
-        var fridgeNames = fridge.map(function(f) { return f.name; });
-        var miss = rec.ingredients.filter(function(ing) { return fridgeNames.indexOf(ing) === -1; });
-        weekPlan[fillSlots[i]] = [{ recipe: name, missing: miss }];
-        miss.forEach(function(ing) { addToShoppingFromRecipe(ing, refOf(fillSlots[i], name)); });
-      });
-      saveData(KEYS.weekPlan, weekPlan);
-      saveData(KEYS.shopping, shopping);
-    }
-    // 数据迁移 V2：一餐单菜谱 → 一餐多菜谱；购物清单 ref 加上菜名
-    if (!localStorage.getItem(KEYS.planMigrated)) {
-      var planChanged = false;
-      Object.keys(weekPlan).forEach(function(slot) {
-        var v = weekPlan[slot];
-        if (v && !Array.isArray(v)) {
-          weekPlan[slot] = [v];
-          planChanged = true;
-          shopping.forEach(function(s) {
-            if (!s.recipeRefs) return;
-            s.recipeRefs = s.recipeRefs.map(function(ref) {
-              return ref === slot ? refOf(slot, v.recipe) : ref;
-            });
-          });
-        }
-      });
-      if (planChanged) {
-        saveData(KEYS.weekPlan, weekPlan);
-        saveData(KEYS.shopping, shopping);
-      }
-      localStorage.setItem(KEYS.planMigrated, '1');
-    }
-    // 数据迁移：isConsumable → category
-    var needSave = false;
-    items.forEach(function(item) {
-      if (item.category && item.category !== 'consumable') return;
-      if (item.isConsumable === true) {
-        item.category = item.cycleDays > 0 ? 'periodic' : 'daily';
-      } else if (item.isConsumable === false) {
-        item.category = 'durable';
-      } else if (!item.category) {
-        item.category = 'periodic';
-      }
-      delete item.isConsumable;
-      needSave = true;
-    });
-    if (needSave) saveData(KEYS.items, items);
+  // 首次使用：内置管理员账号 admin / 123456
+  const users = getUsers();
+  if (users.length === 0) {
+    saveUsers([{ username: 'admin', password: '123456', role: 'admin', createdAt: new Date().toISOString() }]);
   }
 
-  renderAll();
-  loadTab();
+  // 检查已有会话，自动登录
+  const session = getSession();
+  const u = users.find(function(x) { return x.username === session; });
+  if (u) {
+    doLoginAs(session);
+  } else {
+    // 未登录：显示登录界面（不预渲染数据）
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
 }
 
 // 启动
