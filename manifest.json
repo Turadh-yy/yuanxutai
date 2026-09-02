@@ -1,0 +1,17 @@
+{
+  "name": "圆序台 · 个人工作台",
+  "short_name": "圆序台",
+  "description": "个人工作台：日程、记账、冰箱、食谱等单文件应用。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F5F7FA",
+  "theme_color": "#6B8AAD",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icon-192.png",       "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png",       "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
