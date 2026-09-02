@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>圆序台 · 使用手册</title>
+<style>
+:root {
+  --primary: #6B8AAD;
+  --primary-light: #E8F0F7;
+  --primary-dark: #4A6B85;
+  --bg: #F5F7FA;
+  --card-bg: #FFFFFF;
+  --text: #3D4E5C;
+  --text-secondary: #8A9BA8;
+  --border: #E8ECF0;
+  --warning: #E8746C;
+  --success: #6BBB8A;
+  --radius: 14px;
+  --shadow: 0 2px 12px rgba(107,138,173,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.75; font-size: 16px;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* 顶部头图 */
+.hero {
+  background: linear-gradient(135deg, #7C9ABC, #5A7898);
+  color: #fff; padding: 48px 20px 40px; text-align: center;
+}
+.hero h1 { font-size: 30px; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px; }
+.hero .sub { font-size: 15px; opacity: .92; }
+.hero .url {
+  display: inline-block; margin-top: 14px; padding: 8px 18px;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 20px; font-size: 14px; font-family: monospace; word-break: break-all;
+}
+
+/* 目录 */
+.toc {
+  background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 22px 26px; margin: -24px auto 28px; position: relative;
+}
+.toc h2 { font-size: 18px; color: var(--primary-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.toc h2::before { content: "☰"; font-size: 16px; }
+.toc ol { list-style: none; counter-reset: toc; }
+.toc > ol > li { counter-increment: toc; margin-bottom: 6px; }
+.toc > ol > li > a { font-weight: 600; color: var(--primary-dark); }
+.toc > ol > li::before { content: counter(toc) ". "; color: var(--primary); font-weight: 700; }
+.toc ol ol { counter-reset: sub; padding-left: 26px; margin: 4px 0 8px; }
+.toc ol ol li { counter-increment: sub; margin-bottom: 3px; }
+.toc ol ol li::before { content: counter(toc) "." counter(sub) " "; color: var(--text-secondary); font-size: 14px; }
+.toc a { color: var(--text); text-decoration: none; }
+.toc a:hover { color: var(--primary); text-decoration: underline; }
+
+/* 章节 */
+section { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px; margin-bottom: 22px; scroll-margin-top: 20px; }
+section h2 { font-size: 22px; color: var(--primary-dark); padding-bottom: 10px; border-bottom: 2px solid var(--primary-light); margin-bottom: 16px; }
+section h3 { font-size: 17px; color: var(--primary-dark); margin: 20px 0 10px; }
+section h4 { font-size: 15px; color: var(--text); margin: 14px 0 6px; }
+section p { margin-bottom: 12px; }
+section ul, section ol { margin: 0 0 14px 22px; }
+section li { margin-bottom: 6px; }
+section .lead { font-size: 15px; color: var(--text-secondary); }
+code { background: var(--primary-light); color: var(--primary-dark); padding: 2px 6px; border-radius: 4px; font-size: 14px; font-family: monospace; }
+.back { display: inline-block; margin-top: 14px; color: var(--primary); font-size: 14px; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+/* 提示框 */
+.tip { border-left: 4px solid var(--primary); background: var(--primary-light); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 15px; }
+.tip.warn { border-color: var(--warning); background: #FDF2F1; }
+.tip.ok { border-color: var(--success); background: #F0F9F4; }
+.tip b { color: var(--primary-dark); }
+.tip.warn b { color: var(--warning); }
+.tip.ok b { color: var(--success); }
+
+/* 功能卡 */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 14px 0; }
+.card { background: var(--primary-light); border-radius: 10px; padding: 14px 16px; }
+.card .ic { font-size: 22px; margin-bottom: 4px; }
+.card .t { font-weight: 700; color: var(--primary-dark); margin-bottom: 2px; }
+.card .d { font-size: 13px; color: var(--text-secondary); }
+
+/* 步骤 */
+.steps { counter-reset: step; list-style: none; margin-left: 0; }
+.steps > li { counter-increment: step; position: relative; padding-left: 36px; margin-bottom: 12px; }
+.steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 24px; height: 24px; background: var(--primary); color: #fff; border-radius: 50%; text-align: center; line-height: 24px; font-size: 13px; font-weight: 700; }
+
+footer { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 30px 20px; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 24px; }
+  section { padding: 20px 18px; }
+  .toc { padding: 18px 18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>圆序台 · 使用手册</h1>
+  <div class="sub">个人 / 家庭数字工作台 —— 物品、冰箱、菜谱、购物、待办、记账，一处搞定</div>
+  <div class="url">https://turadh-yy.github.io/yuanxutai/</div>
+</header>
+
+<div class="wrap">
+
+<!-- 目录 -->
+<nav class="toc" id="mulu">
+  <h2>目录（点击跳转）</h2>
+  <ol>
+    <li><a href="#about">圆序台是什么</a></li>
+    <li><a href="#start">开始使用</a>
+      <ol>
+        <li><a href="#open">打开网址</a></li>
+        <li><a href="#install">安装到桌面（像 App 一样用）</a></li>
+        <li><a href="#account">注册与登录</a></li>
+      </ol>
+    </li>
+    <li><a href="#modules">功能模块</a>
+      <ol>
+        <li><a href="#top3">日历 · 今日待办 · 记账概览</a></li>
+        <li><a href="#items">物品管理</a></li>
+        <li><a href="#fridge">冰箱管理</a></li>
+        <li><a href="#recipe">菜谱（本周食谱 / 菜谱库 / 新建）</a></li>
+        <li><a href="#shopping">购物清单</a></li>
+        <li><a href="#todo">事件待办</a></li>
+        <li><a href="#finance">记账本</a></li>
+      </ol>
+    </li>
+    <li><a href="#data">数据与同步</a>
+      <ol>
+        <li><a href="#sync">云同步（多设备互通）</a></li>
+        <li><a href="#backup">导出备份与导入恢复</a></li>
+      </ol>
+    </li>
+    <li><a href="#users">账号与管理员</a>
+      <ol>
+        <li><a href="#multi">多用户数据隔离</a></li>
+        <li><a href="#admin">管理员查看他人数据</a></li>
+      </ol>
+    </li>
+    <li><a href="#share">给家人朋友共用</a></li>
+    <li><a href="#faq">常见问题</a></li>
+    <li><a href="#security">安全与撤销</a></li>
+  </ol>
+</nav>
+
+<!-- 1. 关于 -->
+<section id="about">
+  <h2>一、圆序台是什么</h2>
+  <p class="lead">圆序台是一个「个人 / 家庭数字工作台」，把日常零散的事——家里有什么东西、冰箱里还剩什么、这周吃什么、要买啥、有什么事待办、钱花在哪——都收进一个页面里管。</p>
+  <div class="grid">
+    <div class="card"><div class="ic">📦</div><div class="t">物品管理</div><div class="d">家里物品清单 + 分类</div></div>
+    <div class="card"><div class="ic">🧊</div><div class="t">冰箱管理</div><div class="d">食材保质期提醒</div></div>
+    <div class="card"><div class="ic">🍳</div><div class="t">菜谱</div><div class="d">本周食谱 + 菜谱库</div></div>
+    <div class="card"><div class="ic">🛒</div><div class="t">购物清单</div><div class="d">要买的东西</div></div>
+    <div class="card"><div class="ic">✅</div><div class="t">事件待办</div><div class="d">事情不落</div></div>
+    <div class="card"><div class="ic">💰</div><div class="t">记账本</div><div class="d">收支 + 分类 + 月度</div></div>
+  </div>
+  <div class="tip"><b>特点：</b>单文件、零依赖、数据存本地浏览器；可安装到手机桌面像 App 一样用；开通云同步后多设备数据互通。</div>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 2. 开始使用 -->
+<section id="start">
+  <h2>二、开始使用</h2>
+
+  <h3 id="open">2.1 打开网址</h3>
+  <p>手机或电脑浏览器打开：</p>
+  <p><code>https://turadh-yy.github.io/yuanxutai/</code></p>
+  <div class="tip warn"><b>注意：</b>不要在微信里直接打开（微信内浏览器装不了 App）。点右上角「···」→「在浏览器打开」，用系统浏览器（Safari / Chrome / Edge）继续。</div>
+
+  <h3 id="install">2.2 安装到桌面（像 App 一样用）</h3>
+  <p>圆序台支持 PWA，可以「安装」到手机 / 电脑桌面，之后像原生 App 一样全屏打开、离线可用。</p>
+  <ul>
+    <li><b>安卓（Chrome / Edge）：</b>打开网址后，地址栏或页面底部会出现「安装 / 添加到主屏幕」提示，点一下即可；或在菜单里选「添加到主屏幕」。</li>
+    <li><b>苹果 iOS（Safari）：</b>点底部分享按钮 <code>⬆️</code> →「添加到主屏幕」。</li>
+    <li><b>电脑（Chrome / Edge）：</b>地址栏右侧会出现安装图标，点一下；或菜单→「安装此应用」。</li>
+  </ul>
+  <div class="tip ok"><b>没装也能用：</b>不安装、直接用浏览器打开网址也完全正常，只是没有桌面图标、不能全屏。装了之后每次从桌面图标进，体验更像 App。</div>
+
+  <h3 id="account">2.3 注册与登录</h3>
+  <p>第一次用要先注册一个账号（数据按账号隔离）：</p>
+  <ol class="steps">
+    <li>打开页面后，登录界面下方点「注册」</li>
+    <li>用户名 2–16 位（不能和别人重复），密码 6 位数字</li>
+    <li>填好点「注册」，注册成功会自动登录</li>
+    <li>以后每次打开，输用户名 + 密码「登录」即可</li>
+  </ol>
+  <div class="tip"><b>记好用户名和密码：</b>密码只存在你自己的设备上，忘了就只能重新注册一个新账号（旧数据找不回）。建议把用户名 / 密码记在安全的地方。</div>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 3. 功能模块 -->
+<section id="modules">
+  <h2>三、功能模块</h2>
+  <p class="lead">顶部 6 个标签页切换不同模块，下面逐个说明。</p>
+
+  <h3 id="top3">3.1 日历 · 今日待办 · 记账概览</h3>
+  <p>页面最上方三栏（手机端会自适应重排，优先显示今日待办）：</p>
+  <ul>
+    <li><b>日历：</b>看日期、月份切换；记过账的日期会有标记。</li>
+    <li><b>今日待办：</b>今天到期 / 未完成的事，一眼看见今天要干什么。</li>
+    <li><b>记账柱形图：</b>本月收支一览，哪天花多少看得见。</li>
+  </ul>
+
+  <h3 id="items">3.2 物品管理</h3>
+  <p>管理家里的物品清单。</p>
+  <ul>
+    <li><b>添加物品：</b>填物品名称 + 分类，保存。</li>
+    <li><b>智能识别：</b>系统内置常用物品字典，输入时会自动匹配分类，省得自己归类。</li>
+    <li><b>用途：</b>知道家里有什么、放在哪、多少，搬家 / 整理 / 找东西时不用翻箱倒柜。</li>
+  </ul>
+
+  <h3 id="fridge">3.3 冰箱管理</h3>
+  <p>管冰箱里的食材，重点是保质期。</p>
+  <ul>
+    <li><b>添加食材：</b>名称 + 数量 + 保质期日期。</li>
+    <li><b>过期提醒：</b>临期 / 已过期的会高亮提示，避免吃到坏东西、减少浪费。</li>
+    <li><b>和菜谱联动：</b>菜谱用到某食材时，能查到冰箱里还有没有、哪天到期。</li>
+  </ul>
+
+  <h3 id="recipe">3.4 菜谱（本周食谱 / 菜谱库 / 新建）</h3>
+  <p>管「这周吃什么」和「会做哪些菜」。</p>
+  <ul>
+    <li><b>本周食谱：</b>按天 / 餐安排要做的菜，一餐可以配多个菜谱。</li>
+    <li><b>菜谱库：</b>收藏的所有菜谱，可按菜名 / 食材 / 分类搜索。</li>
+    <li><b>新建菜谱：</b>填菜名 + 分类 + 食材 + 步骤，存进菜谱库，以后排食谱直接选。</li>
+    <li><b>菜谱详情：</b>点菜谱看食材、步骤；可直接把所需食材加到购物清单。</li>
+  </ul>
+
+  <h3 id="shopping">3.5 购物清单</h3>
+  <p>要买的东西列在这里。</p>
+  <ul>
+    <li>从菜谱详情「加入购物清单」，或手动添加。</li>
+    <li>买一样勾一样，买完自动清理，清单干净不乱。</li>
+  </ul>
+
+  <h3 id="todo">3.6 事件待办</h3>
+  <p>事情别落下。</p>
+  <ul>
+    <li>添加待办事项，可设日期。</li>
+    <li>今天到期的会出现在顶部「今日待办」栏。</li>
+    <li>做完打勾，自动归档。</li>
+  </ul>
+
+  <h3 id="finance">3.7 记账本</h3>
+  <p>记收支，知道钱花哪了。</p>
+  <ul>
+    <li><b>支出 / 收入：</b>顶部切换记的是花钱还是进钱。</li>
+    <li><b>分类：</b>如购物、餐饮等，按类统计。</li>
+    <li><b>月份选择：</b>看某月记录，月份切换条上下翻。</li>
+    <li><b>柱形图：</b>顶部三栏里的记账图按日汇总，哪天花多少一目了然。</li>
+    <li>支持编辑、删除已有记录。</li>
+  </ul>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 4. 数据与同步 -->
+<section id="data">
+  <h2>四、数据与同步</h2>
+
+  <h3 id="sync">4.1 云同步（多设备互通）</h3>
+  <p>默认数据只存在当前浏览器里。开通云同步后，手机和电脑、甚至家人朋友之间数据可以互通。</p>
+  <ol class="steps">
+    <li>登录后，点顶部「<b>云同步</b>」</li>
+    <li>把 GitHub Token 粘进输入框</li>
+    <li>点「<b>保存并验证</b>」（显示「验证通过」就成）</li>
+    <li>点「<b>立即同步</b>」，本地数据上传云端</li>
+  </ol>
+  <div class="tip"><b>之后：</b>不用再管，打开应用自动拉取云端最新，改完约 10 秒自动推送。多台设备都配一次，数据就互通了。</div>
+  <div class="tip warn"><b>每人数据独立：</b>每个用户的数据在云端是独立文件（按用户名区分），互不覆盖。</div>
+
+  <h3 id="backup">4.2 导出备份与导入恢复</h3>
+  <p>顶部「<b>导出备份</b>」按钮可把当前用户全部数据导出成一个 Excel（.xlsx）文件，文件名形如 <code>圆序台_用户名_日期.xlsx</code>，含多个工作表。</p>
+  <ul>
+    <li><b>导出：</b>点「导出备份」→ 浏览器自动下载 .xlsx。</li>
+    <li><b>导入：</b>点「导入」（或选文件），选 .xlsx / .json / .csv 文件，数据恢复进来。兼容旧版 .json 备份。</li>
+  </ul>
+  <div class="tip ok"><b>建议：</b>定期导出一份备份存到电脑 / 网盘，万一清了浏览器数据或换设备，数据找得回。</div>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 5. 账号与管理员 -->
+<section id="users">
+  <h2>五、账号与管理员</h2>
+
+  <h3 id="multi">5.1 多用户数据隔离</h3>
+  <p>一台设备可以注册多个账号，每个账号的数据互相看不到、改不到。数据按账号前缀分开存储。退出登录（顶部用户名旁的退出按钮）后可以换账号登录。</p>
+
+  <h3 id="admin">5.2 管理员查看他人数据</h3>
+  <p>第一个管理员账号是 <code>Turadh</code>（密码 <code>123456</code>，可登录后改）。管理员可以查看其他用户的数据，方便家庭场景里看家人记的东西。</p>
+  <ul>
+    <li>管理员登录后，可切换查看其他用户的数据。</li>
+    <li>查看他人数据时，顶部会有提示条，标明当前在看谁的数据。</li>
+    <li>查看他人数据期间，同步会暂停（避免把别人的数据误推到自己账号）。</li>
+  </ul>
+  <div class="tip warn"><b>安全建议：</b>管理员密码 <code>123456</code> 很弱，拿到管理员权限的人能看所有用户数据。家庭共用场景建议登录后改成强密码。</div>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 6. 给家人朋友共用 -->
+<section id="share">
+  <h2>六、给家人朋友共用</h2>
+  <p>圆序台支持「共享一个细粒度 Token」的方式，让信任的家人朋友也用上云同步。每人用自己的账号登录，数据按用户名在云端独立存放，互不覆盖。</p>
+
+  <h4>由仓库主人一次性准备（建共享 Token）</h4>
+  <ol class="steps">
+    <li>打开 https://github.com/settings/personal-access-tokens/new （需登录你的 GitHub）</li>
+    <li><b>Token name</b>：随便起，如「圆序台共享」</li>
+    <li><b>Expiration</b>：按需（如 90 天 / 1 年，到期要换）</li>
+    <li><b>Repository access</b>：选「Only select repositories」→ 只勾 <code>yuanxutai-data</code></li>
+    <li><b>Repository permissions</b>：点「+ Add permissions」→ 找到 <b>Contents</b> → 勾上 → 右侧 Access 选 <b>Read and write</b>（其余保持 No access）</li>
+    <li>点「Generate token」，复制 <code>github_pat_</code> 开头的那串，私发给信任的人</li>
+  </ol>
+  <div class="tip warn"><b>关键：</b>Permissions 区不能空，必须给 Contents: Read and write，否则 token 访问仓库会报 404（看着像仓库不存在，其实是没权限）。</div>
+
+  <h4>给朋友的操作步骤</h4>
+  <ol class="steps">
+    <li>手机 / 电脑浏览器打开 https://turadh-yy.github.io/yuanxutai/</li>
+    <li>注册一个用户名（2–16 位，不重复）、设 6 位数字密码</li>
+    <li>登录后点顶部「云同步」</li>
+    <li>把 Token 粘进输入框，点「保存并验证」</li>
+    <li>点「立即同步」</li>
+  </ol>
+  <div class="tip"><b>之后：</b>不用再管，自动拉取 / 推送。多设备都配一次即互通。</div>
+
+  <h4>隐私须知</h4>
+  <div class="tip warn"><b>持 Token 者能读取仓库里所有人的数据文件</b>（含记账金额等）。所以只发给信任的人；介意互相看到记账的，别用共享方式。Token 不要发到公开群、不要提交进任何仓库。</div>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 7. 常见问题 -->
+<section id="faq">
+  <h2>七、常见问题</h2>
+
+  <h4>Q：手机打开没提示安装？</h4>
+  <p>A：圆序台检测到未安装时每次打开都会弹安装提示。微信里打不开——点「···」→「在浏览器打开」再用。苹果走 Safari 分享→添加到主屏幕。安卓 Chrome 直接有安装提示或菜单添加。</p>
+
+  <h4>Q：换了手机 / 清了浏览器，数据没了？</h4>
+  <p>A：数据默认存在本地浏览器，换设备或清缓存会丢。两个办法找回：① 开了云同步，新设备登录同一账号 + 配同一 Token 即可拉回；② 之前导出过 .xlsx 备份，点「导入」恢复。</p>
+
+  <h4>Q：云同步点了「立即同步」没反应 / 数据没更新？</h4>
+  <p>A：GitHub 云端写入后有 1–2 秒的延迟。刚在 A 设备改完，B 设备立刻拉可能拿到上一版；过几秒再点一次「立即同步」就是最新。不会丢数据。</p>
+
+  <h4>Q：忘了密码怎么办？</h4>
+  <p>A：密码只存本地，找不回。只能重新注册一个新账号（旧账号的数据若开了云同步，仍可通过云同步在新设备拉回——需用同一 Token）。</p>
+
+  <h4>Q：Token 怎么获得？</h4>
+  <p>A：见<a href="#share">第六章</a>。需在 GitHub 网页本人创建，无 API 可代生成。</p>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+<!-- 8. 安全 -->
+<section id="security">
+  <h2>八、安全与撤销</h2>
+  <ul>
+    <li><b>撤销共享 Token：</b>到 https://github.com/settings/personal-access-tokens 找到对应 Token，点「Revoke」即可。撤销后所有人的同步失效（但他们设备上已存的本地数据不受影响）。</li>
+    <li><b>Token 泄露过：</b>如果 Token 在聊天 / 截图里明文出现过，建议到 GitHub 点「Regenerate」换个新值再分发，旧的作废。</li>
+    <li><b>管理员密码：</b>初始 <code>123456</code> 很弱，登录后尽快改成强密码。</li>
+    <li><b>定期备份：</b>即便有云同步，也建议偶尔「导出备份」一份存本地 / 网盘，双保险。</li>
+  </ul>
+  <a class="back" href="#mulu">↑ 返回目录</a>
+</section>
+
+</div>
+
+<footer>
+  圆序台 · 个人数字工作台 &nbsp;|&nbsp; 网址 https://turadh-yy.github.io/yuanxutai/
+</footer>
+
+</body>
+</html>
