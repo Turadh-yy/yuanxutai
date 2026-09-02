@@ -294,13 +294,13 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <p>一台设备可以注册多个账号，每个账号的数据互相看不到、改不到。数据按账号前缀分开存储。退出登录（顶部用户名旁的退出按钮）后可以换账号登录。</p>
 
   <h3 id="admin">5.2 管理员查看他人数据</h3>
-  <p>第一个管理员账号是 <code>Turadh</code>（密码 <code>123456</code>，可登录后改）。管理员可以查看其他用户的数据，方便家庭场景里看家人记的东西。</p>
+  <p>第一个管理员账号是 <code>Turadh</code>（初始密码为弱口令，登录后请立即修改为强密码）。管理员可以查看其他用户的数据，方便家庭场景里看家人记的东西。</p>
   <ul>
     <li>管理员登录后，可切换查看其他用户的数据。</li>
     <li>查看他人数据时，顶部会有提示条，标明当前在看谁的数据。</li>
     <li>查看他人数据期间，同步会暂停（避免把别人的数据误推到自己账号）。</li>
   </ul>
-  <div class="tip warn"><b>安全建议：</b>管理员密码 <code>123456</code> 很弱，拿到管理员权限的人能看所有用户数据。家庭共用场景建议登录后改成强密码。</div>
+  <div class="tip warn"><b>安全建议：</b>管理员初始密码为弱口令，拿到管理员权限的人能看所有用户数据。家庭共用场景建议登录后改成强密码。</div>
   <a class="back" href="#mulu">↑ 返回目录</a>
 </section>
 
@@ -362,7 +362,7 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <ul>
     <li><b>撤销共享 Token：</b>到 https://github.com/settings/personal-access-tokens 找到对应 Token，点「Revoke」即可。撤销后所有人的同步失效（但他们设备上已存的本地数据不受影响）。</li>
     <li><b>Token 泄露过：</b>如果 Token 在聊天 / 截图里明文出现过，建议到 GitHub 点「Regenerate」换个新值再分发，旧的作废。</li>
-    <li><b>管理员密码：</b>初始 <code>123456</code> 很弱，登录后尽快改成强密码。</li>
+    <li><b>管理员密码：</b>初始为弱口令，登录后尽快改成强密码。</li>
     <li><b>定期备份：</b>即便有云同步，也建议偶尔「导出备份」一份存本地 / 网盘，双保险。</li>
   </ul>
   <a class="back" href="#mulu">↑ 返回目录</a>
