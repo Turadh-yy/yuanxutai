@@ -132,17 +132,6 @@ body {
 .btn-sm { padding: 6px 10px; font-size: 13px; min-height: 32px; }
 .btn-danger { color: var(--warning); border-color: var(--warning); }
 .btn-danger:hover { background: var(--warning-bg); }
-.btn-install {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-  animation: installPulse 2.4s ease-in-out infinite;
-}
-.btn-install:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
-@keyframes installPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(107,138,173,0.45); }
-  50%      { box-shadow: 0 0 0 6px rgba(107,138,173,0); }
-}
 .btn-icon {
   padding: 6px;
   min-height: 32px;
@@ -1233,7 +1222,7 @@ body {
   padding: 12px 24px;
   border-radius: var(--radius-sm);
   font-size: 14px;
-  z-index: 1000;
+  z-index: 2200;
   opacity: 0;
   transition: all 0.3s;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
@@ -1604,6 +1593,71 @@ body {
   .toast { padding: 10px 16px; font-size: 13px; }
 }
 
+/* ===== 安装横幅（未安装时每次打开提示） ===== */
+.install-banner {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2100;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 28px);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 34px rgba(61, 78, 92, 0.22);
+  padding: 12px 14px 12px 16px;
+  animation: bannerUp 0.45s ease;
+}
+.install-banner.show { display: flex; }
+@keyframes bannerUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(18px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.install-banner-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #7C9ABC, #5A7898);
+  color: #fff;
+  border-radius: 10px;
+}
+.install-banner-text { min-width: 0; }
+.install-banner-text strong { display: block; font-size: 14px; color: var(--text); }
+.install-banner-text span { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.install-banner-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.install-banner-close {
+  border: none; background: none; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px;
+  color: var(--text-light); font-size: 17px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.install-banner-close:hover { background: var(--bg); color: var(--text-secondary); }
+
+/* ===== 云同步面板 ===== */
+.sync-body { padding: 2px 0; }
+.sync-status {
+  font-size: 13px; color: var(--text-secondary);
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 10px 12px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sync-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-light); flex-shrink: 0; }
+.sync-status.ok   .dot { background: var(--success); }
+.sync-status.warn .dot { background: var(--warning); }
+.sync-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.sync-help { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+.sync-help code { background: var(--primary-light); color: var(--primary-dark); padding: 1px 5px; border-radius: 4px; }
+
+@media (max-width: 480px) {
+  .install-banner { padding: 10px 10px 10px 12px; gap: 10px; }
+  .install-banner-icon { display: none; }
+  .install-banner-text strong { font-size: 13px; }
+  .install-banner-text span { font-size: 11px; }
+  .install-banner-actions .btn { padding: 5px 10px; font-size: 12px; }
+}
+
 /* ===== 动画 ===== */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .card, .list-item, .recipe-card, .today-item { animation: fadeIn 0.3s ease; }
@@ -1670,9 +1724,9 @@ body {
     <div class="header-actions">
       <span class="data-count" id="data-count"></span>
       <span class="header-user" id="header-user"></span>
-      <button class="btn btn-sm btn-install" id="btn-install" onclick="triggerInstall()" style="display:none" title="安装到桌面">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/><path d="M9 17h6"/></svg>
-        <span class="btn-text">安装到桌面</span>
+      <button class="btn btn-sm" onclick="openSyncPanel()" title="云同步 · 双端数据互通">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+        <span class="btn-text">云同步</span>
       </button>
       <button class="btn btn-sm" id="btn-admin-users" onclick="openAdminUsers()" style="display:none">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
@@ -2033,6 +2087,21 @@ body {
 
 </main>
 
+<!-- 安装横幅：未安装时每次打开都提示 -->
+<div class="install-banner" id="install-banner">
+  <div class="install-banner-icon">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/><path d="M9 17h6"/></svg>
+  </div>
+  <div class="install-banner-text">
+    <strong>安装「圆序台」到桌面</strong>
+    <span id="install-banner-tip"></span>
+  </div>
+  <div class="install-banner-actions">
+    <button class="btn btn-sm btn-primary" id="install-banner-btn" onclick="triggerInstall()">立即安装</button>
+    <button class="install-banner-close" onclick="hideInstallBanner()" title="本次打开内关闭">✕</button>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -2045,6 +2114,32 @@ body {
     <div class="modal-actions" id="modal-default-actions">
       <button class="btn" onclick="closeModal()">取消</button>
       <button class="btn btn-danger" id="modal-confirm-btn">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 云同步面板：GitHub 私有仓库作为虚拟数据库 -->
+<div class="modal-overlay" id="sync-overlay">
+  <div class="modal-box">
+    <div class="modal-title">云同步 · 虚拟数据库</div>
+    <div class="sync-body">
+      <div class="sync-status" id="sync-status">
+        <span class="dot"></span>
+        <span id="sync-status-text">未配置</span>
+      </div>
+      <div class="login-field">
+        <label class="form-label">GitHub Token（每台设备保存一次即可）</label>
+        <input type="password" class="form-input" id="sync-token-input" placeholder="粘贴具有 repo 权限的 Personal Access Token" autocomplete="off">
+      </div>
+      <div class="sync-actions">
+        <button class="btn btn-sm" onclick="syncSaveToken()">保存并验证</button>
+        <button class="btn btn-sm btn-primary" onclick="syncNow(true)">立即同步</button>
+        <button class="btn btn-sm" onclick="closeSyncPanel()">关闭</button>
+      </div>
+      <div class="sync-help">
+        手机、电脑各配置一次 Token，数据即双端互通：打开应用自动拉取云端，改动后约 10 秒自动推送。<br>
+        数据以 JSON 文件存放在你 GitHub 账号下的<b>私有仓库</b> <code>yuanxutai-data</code>，仅你本人可见；多设备同时改动时保留较新版本。
+      </div>
     </div>
   </div>
 </div>
@@ -4624,6 +4719,8 @@ function doLoginAs(username) {
   if (!localStorage.getItem(userKey(BASE_KEYS.initialized))) {
     initSampleData();
     showToast('已加载示例数据，可随时清空', 'success');
+    // 示例数据不算本地变更：清除时间戳，首同步时以云端为准
+    localStorage.removeItem(PREFIX + username + '_dataUpdatedAt');
   } else {
     loadUserData();
     migrateUserData();
@@ -4631,6 +4728,10 @@ function doLoginAs(username) {
   renderAll();
   loadTab();
   showToast('欢迎回来，' + username, 'success');
+  // 云同步：已配置 Token 则打开时自动拉取云端较新数据
+  if (typeof syncToken === 'function' && syncToken()) {
+    setTimeout(function () { syncNow(false); }, 1500);
+  }
 }
 
 // 当前用户数据迁移（旧版结构兼容）
@@ -4722,6 +4823,11 @@ function saveUserData() {
   saveData(userKey(BASE_KEYS.weekPlan), weekPlan);
   saveData(userKey(BASE_KEYS.customRecipes), customRecipes);
   localStorage.setItem(userKey(BASE_KEYS.initialized), '1');
+  // 云同步：标记本地数据变更时间，延迟推送（管理员查看他人数据时不同步）
+  if (currentUser && !adminViewingUser) {
+    localStorage.setItem(PREFIX + currentUser + '_dataUpdatedAt', String(Date.now()));
+    if (typeof scheduleSyncPush === 'function') scheduleSyncPush();
+  }
 }
 
 // 管理员：打开用户管理弹窗
@@ -5448,20 +5554,201 @@ window.addEventListener('resize', function() {
   }, 200);
 });
 
-/* ===== PWA：注册 Service Worker + 桌面安装提示 ===== */
+/* ===== 云同步：GitHub 私有仓库作为虚拟数据库 ===== */
+var SYNC_REPO = 'yuanxutai-data';
+var SYNC_TOKEN_KEY = PREFIX + 'gh_token';
+var syncBusy = false;
+var syncPushTimer = null;
+
+function syncToken() { return localStorage.getItem(SYNC_TOKEN_KEY) || ''; }
+
+function ghRequest(method, path, body) {
+  var headers = {
+    'Authorization': 'token ' + syncToken(),
+    'Accept': 'application/vnd.github+json'
+  };
+  var opt = { method: method, headers: headers };
+  if (body) {
+    headers['Content-Type'] = 'application/json';
+    opt.body = JSON.stringify(body);
+  }
+  return fetch('https://api.github.com' + path, opt).then(function (res) {
+    return res.json().catch(function () { return {}; }).then(function (j) {
+      return { ok: res.ok, status: res.status, data: j };
+    });
+  });
+}
+
+function utf8ToB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64ToUtf8(b64) { return decodeURIComponent(escape(atob((b64 || '').replace(/\s/g, '')))); }
+
+function syncFilePath() { return '/repos/' + syncOwner + '/' + SYNC_REPO + '/contents/data/' + encodeURIComponent(currentUser) + '.json'; }
+var syncOwner = '';
+
+function syncBuildBundle(ts) {
+  return {
+    version: 1,
+    updatedAt: ts,
+    users: getUsers(),
+    data: {
+      items: items, fridge: fridge, todos: todos, shopping: shopping,
+      finance: finance, weekPlan: weekPlan, customRecipes: customRecipes
+    }
+  };
+}
+
+// 把云端数据写回本地（当前用户）
+function syncApplyBundle(b) {
+  if (!b || !b.data) return;
+  var d = b.data;
+  var p = PREFIX + currentUser + '_';
+  saveData(p + BASE_KEYS.items, d.items || []);
+  saveData(p + BASE_KEYS.fridge, d.fridge || []);
+  saveData(p + BASE_KEYS.todos, d.todos || []);
+  saveData(p + BASE_KEYS.shopping, d.shopping || []);
+  saveData(p + BASE_KEYS.finance, d.finance || []);
+  saveData(p + BASE_KEYS.weekPlan, d.weekPlan || {});
+  saveData(p + BASE_KEYS.customRecipes, d.customRecipes || []);
+  localStorage.setItem(p + BASE_KEYS.initialized, '1');
+  // 用户表合并（并集，同名以云端为准）
+  if (Array.isArray(b.users) && b.users.length) {
+    var users = getUsers();
+    b.users.forEach(function (ru) {
+      if (!ru || !ru.username) return;
+      var idx = -1;
+      for (var i = 0; i < users.length; i++) if (users[i].username === ru.username) { idx = i; break; }
+      if (idx === -1) users.push(ru); else users[idx] = ru;
+    });
+    saveUsers(users);
+  }
+  loadUserData();
+  renderAll();
+  loadTab();
+}
+
+function updateSyncStatus(text, cls) {
+  var box = document.getElementById('sync-status');
+  var txt = document.getElementById('sync-status-text');
+  if (box) box.className = 'sync-status' + (cls ? ' ' + cls : '');
+  if (txt) txt.textContent = text;
+}
+
+function syncSyncedLabel() {
+  var t = parseInt(localStorage.getItem(PREFIX + currentUser + '_lastSyncAt') || '0', 10);
+  if (!t) return '尚未同步';
+  var d = new Date(t);
+  return '上次同步 ' + d.toLocaleDateString('zh-CN') + ' ' + d.toTimeString().slice(0, 5);
+}
+
+// 主流程：校验 Token → 确保私有仓库 → 比较updatedAt → 拉取或推送
+function syncNow(interactive) {
+  if (syncBusy) return;
+  if (!currentUser || adminViewingUser) { if (interactive) showToast('当前视图不支持同步', 'warning'); return; }
+  if (!syncToken()) { if (interactive) { openSyncPanel(); showToast('请先配置 GitHub Token', 'warning'); } return; }
+  syncBusy = true;
+  if (interactive) updateSyncStatus('同步中…');
+  ghRequest('GET', '/user', null).then(function (r) {
+    if (!r.ok || !r.data || !r.data.login) throw new Error('Token 无效（HTTP ' + r.status + '）');
+    syncOwner = r.data.login;
+    // 确保私有仓库存在（422=已存在，视为成功）
+    return ghRequest('POST', '/user/repos', { name: SYNC_REPO, private: true, description: '圆序台云端数据（应用内自动创建）' })
+      .then(function (rr) {
+        if (!rr.ok && rr.status !== 422) throw new Error('初始化仓库失败（HTTP ' + rr.status + '）');
+        return ghRequest('GET', syncFilePath());
+      });
+  }).then(function (r) {
+    var remote = null, sha = null;
+    if (r.ok && r.data && r.data.content) {
+      sha = r.data.sha;
+      try { remote = JSON.parse(b64ToUtf8(r.data.content)); } catch (e) { remote = null; }
+    } else if (r.status !== 404) {
+      throw new Error('读取云端数据失败（HTTP ' + r.status + '）');
+    }
+    var localTs = parseInt(localStorage.getItem(PREFIX + currentUser + '_dataUpdatedAt') || '0', 10);
+    var remoteTs = remote && remote.updatedAt ? remote.updatedAt : 0;
+    if (remoteTs > localTs) {
+      syncApplyBundle(remote);
+      localStorage.setItem(PREFIX + currentUser + '_dataUpdatedAt', String(remoteTs));
+      localStorage.setItem(PREFIX + currentUser + '_lastSyncAt', String(Date.now()));
+      updateSyncStatus('已拉取云端较新数据 · ' + syncSyncedLabel(), 'ok');
+      showToast('已同步：云端有较新数据，已更新到本地', 'success');
+      return null;
+    }
+    // 推送时间戳用「数据实际变更时间」，多端并发时按编辑先后决胜，而非推送先后
+    var now = localTs > 0 ? localTs : Date.now();
+    var body = {
+      message: '圆序台同步 ' + new Date().toLocaleString('zh-CN'),
+      content: utf8ToB64(JSON.stringify(syncBuildBundle(now)))
+    };
+    if (sha) body.sha = sha;
+    return ghRequest('PUT', syncFilePath(), body).then(function (rr) {
+      if (!rr.ok) throw new Error('推送失败（HTTP ' + rr.status + '）');
+      localStorage.setItem(PREFIX + currentUser + '_dataUpdatedAt', String(now));
+      localStorage.setItem(PREFIX + currentUser + '_lastSyncAt', String(Date.now()));
+      updateSyncStatus('已同步到云端 · ' + syncSyncedLabel(), 'ok');
+      if (interactive) showToast('已同步到云端', 'success');
+    });
+  }).catch(function (err) {
+    updateSyncStatus('同步失败：' + (err && err.message ? err.message : '网络错误'), 'warn');
+    if (interactive) showToast('同步失败：' + (err && err.message ? err.message : '网络错误'), 'warning');
+  }).then(function () { syncBusy = false; });
+}
+
+// 数据变更后延迟推送（避免频繁请求）
+function scheduleSyncPush() {
+  if (!syncToken()) return;
+  if (syncPushTimer) clearTimeout(syncPushTimer);
+  syncPushTimer = setTimeout(function () { syncNow(false); }, 10000);
+}
+
+// ===== 云同步面板 =====
+function openSyncPanel() {
+  if (!currentUser) { showToast('请先登录', 'warning'); return; }
+  document.getElementById('sync-token-input').value = syncToken();
+  if (syncToken()) updateSyncStatus('已配置 Token · ' + syncSyncedLabel(), 'ok');
+  else updateSyncStatus('未配置 Token：粘贴后即可双端互通', 'warn');
+  document.getElementById('sync-overlay').classList.add('show');
+}
+function closeSyncPanel() {
+  document.getElementById('sync-overlay').classList.remove('show');
+}
+function syncSaveToken() {
+  var t = document.getElementById('sync-token-input').value.trim();
+  if (!t) { localStorage.removeItem(SYNC_TOKEN_KEY); updateSyncStatus('已清除 Token', 'warn'); showToast('Token 已清除', 'info'); return; }
+  localStorage.setItem(SYNC_TOKEN_KEY, t);
+  updateSyncStatus('验证中…');
+  var oldToken = t;
+  ghRequest('GET', '/user', null).then(function (r) {
+    if (!r.ok || !r.data || !r.data.login) throw new Error('HTTP ' + r.status);
+    syncOwner = r.data.login;
+    updateSyncStatus('验证通过：' + r.data.login + ' · ' + syncSyncedLabel(), 'ok');
+    showToast('Token 已保存并验证通过', 'success');
+  }).catch(function (e) {
+    updateSyncStatus('Token 验证失败：' + (e.message || '网络错误'), 'warn');
+    showToast('Token 验证失败，请检查权限', 'warning');
+  });
+}
+
+/* ===== PWA：Service Worker + 安装横幅（未安装则每次打开提示） ===== */
 (function () {
   var deferredPrompt = null;
-  var installBtn = document.getElementById('btn-install');
+  var banner = document.getElementById('install-banner');
+  var tipEl = document.getElementById('install-banner-tip');
+  var actionBtn = document.getElementById('install-banner-btn');
 
   function isStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches ||
+           window.matchMedia('(display-mode: fullscreen)').matches ||
            window.navigator.standalone === true;
   }
   function isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   }
+  function isWeChat() {
+    return /MicroMessenger/i.test(navigator.userAgent);
+  }
 
-  // 注册 SW
+  // 注册 Service Worker（离线可用）
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').catch(function (err) {
@@ -5470,43 +5757,59 @@ window.addEventListener('resize', function() {
     });
   }
 
-  // 捕获 Android/Chrome 的原生安装提示
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn && !isStandalone()) installBtn.style.display = '';
+    if (!isStandalone()) showBanner();
   });
   window.addEventListener('appinstalled', function () {
     deferredPrompt = null;
-    if (installBtn) installBtn.style.display = 'none';
-    showToast && showToast('已安装到桌面，下次可离线打开');
+    hideBanner();
+    showToast('已安装到桌面，下次可离线打开', 'success');
   });
 
-  // iOS：未检测到 beforeinstallprompt 时也显示按钮，提示走 Safari 分享菜单
-  if (installBtn && isIOS() && !isStandalone()) {
-    setTimeout(function () {
-      if (!deferredPrompt) installBtn.style.display = '';
-    }, 1200);
+  function showBanner() {
+    if (!banner || isStandalone()) return;
+    var tip = '', btnText = '';
+    if (isWeChat()) {
+      tip = '微信内无法安装：点右上角「···」选「在浏览器打开」';
+      btnText = '';
+    } else if (isIOS()) {
+      tip = '点浏览器底部「分享」⬆️ →「添加到主屏幕」';
+      btnText = '知道了';
+    } else if (deferredPrompt) {
+      tip = '安装后离线可用、无地址栏';
+      btnText = '立即安装';
+    } else {
+      tip = '浏览器菜单 →「添加到主屏幕」或「安装应用」';
+      btnText = '';
+    }
+    if (tipEl) tipEl.textContent = tip;
+    if (actionBtn) {
+      actionBtn.textContent = btnText;
+      actionBtn.style.display = btnText ? '' : 'none';
+    }
+    banner.classList.add('show');
   }
+  function hideBanner() {
+    if (banner) banner.classList.remove('show');
+  }
+  window.hideInstallBanner = hideBanner;
 
-  // 暴露给 inline onclick
   window.triggerInstall = function () {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(function (choice) {
-        if (choice && choice.outcome === 'accepted') {
-          if (installBtn) installBtn.style.display = 'none';
-        }
+        if (choice && choice.outcome === 'accepted') hideBanner();
         deferredPrompt = null;
       });
       return;
     }
-    if (isIOS()) {
-      alert('iOS 安装方式：\n1. 点击底部的「分享」按钮 ⬆️\n2. 选择「添加到主屏幕」');
-    } else {
-      alert('当前浏览器暂不支持一键安装，可手动从浏览器菜单选择「添加到主屏幕」或「安装应用」。');
-    }
+    hideBanner();
   };
+
+  // 每次打开：未安装即显示提示
+  setTimeout(showBanner, 900);
 })();
 </script>
 </body>
