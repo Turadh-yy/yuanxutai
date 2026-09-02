@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="圆序台">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#6B8AAD">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>圆序台 · 个人工作台</title>
 <style>
 /* ===== 基础变量 ===== */
@@ -126,6 +132,17 @@ body {
 .btn-sm { padding: 6px 10px; font-size: 13px; min-height: 32px; }
 .btn-danger { color: var(--warning); border-color: var(--warning); }
 .btn-danger:hover { background: var(--warning-bg); }
+.btn-install {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  animation: installPulse 2.4s ease-in-out infinite;
+}
+.btn-install:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; }
+@keyframes installPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107,138,173,0.45); }
+  50%      { box-shadow: 0 0 0 6px rgba(107,138,173,0); }
+}
 .btn-icon {
   padding: 6px;
   min-height: 32px;
@@ -1653,6 +1670,10 @@ body {
     <div class="header-actions">
       <span class="data-count" id="data-count"></span>
       <span class="header-user" id="header-user"></span>
+      <button class="btn btn-sm btn-install" id="btn-install" onclick="triggerInstall()" style="display:none" title="安装到桌面">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6"/><path d="M9 11l3 3 3-3"/><path d="M9 17h6"/></svg>
+        <span class="btn-text">安装到桌面</span>
+      </button>
       <button class="btn btn-sm" id="btn-admin-users" onclick="openAdminUsers()" style="display:none">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
         <span class="btn-text">用户管理</span>
@@ -5426,6 +5447,67 @@ window.addEventListener('resize', function() {
     renderPieChart();
   }, 200);
 });
+
+/* ===== PWA：注册 Service Worker + 桌面安装提示 ===== */
+(function () {
+  var deferredPrompt = null;
+  var installBtn = document.getElementById('btn-install');
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+  }
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  // 注册 SW
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.warn('SW 注册失败:', err);
+      });
+    });
+  }
+
+  // 捕获 Android/Chrome 的原生安装提示
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn && !isStandalone()) installBtn.style.display = '';
+  });
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
+    showToast && showToast('已安装到桌面，下次可离线打开');
+  });
+
+  // iOS：未检测到 beforeinstallprompt 时也显示按钮，提示走 Safari 分享菜单
+  if (installBtn && isIOS() && !isStandalone()) {
+    setTimeout(function () {
+      if (!deferredPrompt) installBtn.style.display = '';
+    }, 1200);
+  }
+
+  // 暴露给 inline onclick
+  window.triggerInstall = function () {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function (choice) {
+        if (choice && choice.outcome === 'accepted') {
+          if (installBtn) installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+      return;
+    }
+    if (isIOS()) {
+      alert('iOS 安装方式：\n1. 点击底部的「分享」按钮 ⬆️\n2. 选择「添加到主屏幕」');
+    } else {
+      alert('当前浏览器暂不支持一键安装，可手动从浏览器菜单选择「添加到主屏幕」或「安装应用」。');
+    }
+  };
+})();
 </script>
 </body>
 </html>
