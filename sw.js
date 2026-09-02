@@ -5,7 +5,7 @@
    - 安装时预缓存 shell
    - activate 清理旧版本缓存
 */
-var CACHE_VERSION = 'yuanxutai-v2';
+var CACHE_VERSION = 'yuanxutai-v3';
 var SHELL_CACHE = CACHE_VERSION + '-shell';
 var RUNTIME_CACHE = CACHE_VERSION + '-runtime';
 
