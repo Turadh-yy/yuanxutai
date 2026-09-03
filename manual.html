@@ -199,7 +199,7 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
 <!-- 3. 功能模块 -->
 <section id="modules">
   <h2>三、功能模块</h2>
-  <p class="lead">顶部 6 个标签页切换不同模块，下面逐个说明。</p>
+  <p class="lead">顶部 6 个大卡片切换不同模块（卡片上方有文字提示，点一下就切换；第一次进入会有导览弹窗，点「我知道了」后不再出现），下面逐个说明。</p>
 
   <h3 id="top3">3.1 日历 · 今日待办 · 记账概览</h3>
   <p>页面最上方三栏（手机端会自适应重排，优先显示今日待办）：</p>
@@ -268,7 +268,7 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <h3 id="sync">4.1 云同步（多设备互通）</h3>
   <p>默认数据只存在当前浏览器里。开通云同步后，手机和电脑、甚至家人朋友之间数据可以互通。</p>
   <ol class="steps">
-    <li>登录后，点顶部「<b>云同步</b>」</li>
+    <li>登录后，点「<b>云同步</b>」（电脑在页面右上角；<b>手机端</b>点右上角「<b>☰ 更多</b>」，在弹出菜单里选「云同步」）</li>
     <li>把 GitHub Token 粘进输入框</li>
     <li>点「<b>保存并验证</b>」（显示「验证通过」就成）</li>
     <li>点「<b>立即同步</b>」，本地数据上传云端</li>
@@ -277,7 +277,7 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <div class="tip warn"><b>每人数据独立：</b>每个用户的数据在云端是独立文件（按用户名区分），互不覆盖。</div>
 
   <h3 id="backup">4.2 导出备份与导入恢复</h3>
-  <p>顶部「<b>导出备份</b>」按钮可把当前用户全部数据导出成一个 Excel（.xlsx）文件，文件名形如 <code>圆序台_用户名_日期.xlsx</code>，含多个工作表。</p>
+  <p>「<b>导出备份</b>」可把当前用户全部数据导出成一个 Excel（.xlsx）文件，文件名形如 <code>圆序台_用户名_日期.xlsx</code>，含多个工作表。（电脑在页面右上角；<b>手机端</b>在右上角「<b>☰ 更多</b>」菜单里）</p>
   <ul>
     <li><b>导出：</b>点「导出备份」→ 浏览器自动下载 .xlsx。</li>
     <li><b>导入：</b>点「导入」（或选文件），选 .xlsx / .json / .csv 文件，数据恢复进来。兼容旧版 .json 备份。</li>
@@ -291,16 +291,16 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <h2>五、账号与管理员</h2>
 
   <h3 id="multi">5.1 多用户数据隔离</h3>
-  <p>一台设备可以注册多个账号，每个账号的数据互相看不到、改不到。数据按账号前缀分开存储。退出登录（顶部用户名旁的退出按钮）后可以换账号登录。</p>
+  <p>一台设备可以注册多个账号，每个账号的数据互相看不到、改不到。数据按账号前缀分开存储。退出登录（电脑在页面右上角；<b>手机端</b>在右上角「<b>☰ 更多</b>」菜单底部）后可以换账号登录。</p>
 
   <h3 id="admin">5.2 管理员查看他人数据</h3>
-  <p>第一个管理员账号是 <code>Turadh</code>（初始密码为弱口令，登录后请立即修改为强密码）。管理员可以查看其他用户的数据，方便家庭场景里看家人记的东西。</p>
+  <p>管理员账号是保留用户名 <code>Turadh</code>。首次使用应用时，会引导为管理员设置登录密码（不再内置默认密码，请务必记牢）。管理员可以查看其他用户的数据，方便家庭场景里看家人记的东西。</p>
   <ul>
     <li>管理员登录后，可切换查看其他用户的数据。</li>
     <li>查看他人数据时，顶部会有提示条，标明当前在看谁的数据。</li>
     <li>查看他人数据期间，同步会暂停（避免把别人的数据误推到自己账号）。</li>
   </ul>
-  <div class="tip warn"><b>安全建议：</b>管理员初始密码为弱口令，拿到管理员权限的人能看所有用户数据。家庭共用场景建议登录后改成强密码。</div>
+  <div class="tip warn"><b>安全建议：</b>管理员能看所有用户数据，家庭共用场景建议设置高强度密码并妥善保管。</div>
   <a class="back" href="#mulu">↑ 返回目录</a>
 </section>
 
@@ -362,7 +362,7 @@ footer { text-align: center; color: var(--text-secondary); font-size: 13px; padd
   <ul>
     <li><b>撤销共享 Token：</b>到 https://github.com/settings/personal-access-tokens 找到对应 Token，点「Revoke」即可。撤销后所有人的同步失效（但他们设备上已存的本地数据不受影响）。</li>
     <li><b>Token 泄露过：</b>如果 Token 在聊天 / 截图里明文出现过，建议到 GitHub 点「Regenerate」换个新值再分发，旧的作废。</li>
-    <li><b>管理员密码：</b>初始为弱口令，登录后尽快改成强密码。</li>
+    <li><b>管理员密码：</b>首次使用时引导设置（无默认密码），请设置高强度密码并牢记。</li>
     <li><b>定期备份：</b>即便有云同步，也建议偶尔「导出备份」一份存本地 / 网盘，双保险。</li>
   </ul>
   <a class="back" href="#mulu">↑ 返回目录</a>
